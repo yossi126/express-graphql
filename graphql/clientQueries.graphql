@@ -1,0 +1,64 @@
+// add employee
+mutation ($employeeInput: EmployeeInput) {
+  createEmployee(employeeInput: $employeeInput) {
+    firstName
+  }
+}
+
+mutation{
+  createEmployee(employeeInput: {firstName: "bob"}){
+    firstName
+  }
+}
+
+query variables
+{
+  "employeeInput": {
+    "firstName": "yossi"
+  }
+}
+
+get all employees
+
+query{
+  employees {
+    _id
+    firstName
+    departmentID
+  }
+}
+
+
+
+
+
+add department
+
+mutation($departmentInput: DepartmentInput){
+  createDepartment(departmentInput: $departmentInput){
+    name
+  }
+}
+
+query variables
+{
+  "departmentInput": {
+    "name": "qa"
+  }
+}
+
+add department with manager
+
+mutation($departmentInput: DepartmentInput){
+  createDepartment(departmentInput: $departmentInput){
+    name
+    manager
+  }
+}
+
+{
+  "departmentInput": {
+    "name": "qa",
+    "manager": "64f785c218422d42f05670b4"
+  }
+}
