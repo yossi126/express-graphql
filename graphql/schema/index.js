@@ -25,13 +25,21 @@ type AuthData{
     tokenExpiration: Int
 }
 
+type Shift{
+    _id: ID
+    date: String
+    startingHour: Int
+    endingHour: Int
+    userId: [Employee]
+}
+
 input EmployeeInput{
-    firstName: String!
+    firstName: String
     departmentID: String
 }
 
 input DepartmentInput{
-    name: String!
+    name: String
     manager: String
 }
 
@@ -39,19 +47,40 @@ input UserInput{
     _id: Int
     fullName: String
     numOfActions: Int
+    
+}
+
+input ShiftInput{
+    date: String
 }
 
 type RootQuery{
+    employee(id: String):Employee
     employees:[Employee!]!
-    departments:[Department!]!
-    users:[User!]!
+    
+    department(id: String):Department
+    departments:[Department]
+
+    users:[User]
+
+    shifts:[Shift]
+    shift(id: String):Shift
+
     login(userName: String,email: String): AuthData
 }
 
 type RootMutation{
 createEmployee(employeeInput: EmployeeInput):Employee
+updateEmployee(id: String, employee: EmployeeInput):Employee   
+deleteEmployee(id: String):Employee
+
 createDepartment(departmentInput: DepartmentInput):Department
+updateDepartment(id: String, department: DepartmentInput):Department
+
 createUser(userInput: UserInput): [User]
+
+createShift(shiftInput: ShiftInput): Shift
+addUserToShift(shiftId: String, userId: String): Shift
 
 }
 

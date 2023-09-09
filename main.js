@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
 const connectDB = require("./db/connect");
 const isAuth = require("./middleware/is-auth");
 //graphql
@@ -11,6 +12,8 @@ const createUsersForDB = require("./utils/createUsersForDB");
 
 //middleware
 app.use(express.json());
+app.use(express.static("./client/pages"));
+app.use(cors());
 app.use(isAuth);
 app.use(
   "/graphql",

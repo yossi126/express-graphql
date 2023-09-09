@@ -17,4 +17,8 @@ const emploeeSchema = new mongoose.Schema({
   },
 });
 
+// emploeeSchema.pre("remove", async function (next) {
+//   await this.employee.model("Shift").deleteMany({ userId: this._id });
+// });
+
 module.exports = mongoose.model("Employee", emploeeSchema);

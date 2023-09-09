@@ -62,3 +62,41 @@ mutation($departmentInput: DepartmentInput){
     "manager": "64f785c218422d42f05670b4"
   }
 }
+
+
+
+addUserToShift
+
+mutation{
+  addUserToShift(shiftId:"64fbd80adf88a66978940f8b",userId:"64f78b07b2321f1b35c50137"){
+    _id
+    date
+    startingHour
+    endingHour
+    userId{
+      _id,
+      firstName
+    }
+  }
+}
+
+
+createShift
+mutation($shiftInput: ShiftInput){
+  createShift(shiftInput: $shiftInput){
+    _id
+    date
+    startingHour
+    endingHour
+
+  }
+}
+
+{
+  "shiftInput": {
+    "date": "2023-09-09T01:31:15.397Z",
+    "startingHour": 4,
+    "endingHour": 7
+     
+  }
+}
