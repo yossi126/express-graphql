@@ -1,0 +1,53 @@
+<!-- 
+Create a basic html login page with the following features:
+- Use bootstrap for styling
+- add axios to the page
+- a form that a user has to provide username and email
+ -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>GraphQL Client</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Bootstrap 4.0.0 -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <!--make the form in the center-->
+    <div class="container">
+      <h1>Login</h1>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input
+            type="text"
+            name="username"
+            class="form-control"
+            id="username"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="email"
+            name="email"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+      <p id="errorMessage" style="color: red"></p>
+    </div>
+    <!-- Axios 0.18.0 -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="../js/login.js"></script>
+  </body>
+</html>

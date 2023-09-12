@@ -62,6 +62,7 @@ type RootQuery{
     departments:[Department]
 
     users:[User]
+    user:User
 
     shifts:[Shift]
     shift(id: String):Shift

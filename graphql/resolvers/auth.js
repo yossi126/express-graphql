@@ -22,7 +22,7 @@ module.exports = {
   login: async ({ userName, email }) => {
     const users = await getUsers();
     const user = users.find(
-      (user) => user.name === userName && user.email === email
+      (user) => user.username === userName && user.email === email
     );
     if (!user) {
       throw new Error("User not found");
@@ -34,5 +34,17 @@ module.exports = {
       { expiresIn: "1h" }
     );
     return { userId: user.id, token: token, tokenExpiration: 1 };
+  },
+  user: async (args, req) => {
+    // if (!req.isAuth) {
+    //   throw new Error("Unauthenticated");
+    // }
+    //console.log(req.isAuth);
+    try {
+      const user = await User.findById(req.userId);
+      return user;
+    } catch (err) {
+      throw err;
+    }
   },
 };
