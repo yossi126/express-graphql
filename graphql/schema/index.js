@@ -4,12 +4,12 @@ module.exports = buildSchema(`
 type Employee{
     _id: ID!
     firstName: String!
-    departmentID: String
+    departmentID: Department
 }
 
 type Department{
-    _id: ID!
-    name: String!
+    _id: ID
+    name: String
     manager: String
 }
 
@@ -56,7 +56,8 @@ input ShiftInput{
 
 type RootQuery{
     employee(id: String):Employee
-    employees:[Employee!]!
+    employees:[Employee]
+    employeeShifts(id: String):[Shift]
     
     department(id: String):Department
     departments:[Department]

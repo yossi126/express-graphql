@@ -1,5 +1,5 @@
 const Employee = require("../../models/employee");
-const User = require("../../models/user");
+const Shift = require("../../models/shift");
 
 module.exports = {
   employee: async (args) => {
@@ -10,10 +10,9 @@ module.exports = {
       throw error;
     }
   },
-  employees: async (args, req) => {
+  employees: async () => {
     try {
-      const employees = await Employee.find({});
-      const user = await User.findById(req.userId);
+      const employees = await Employee.find({}).populate("departmentID");
       return employees;
     } catch (error) {
       throw error;
@@ -46,5 +45,22 @@ module.exports = {
     }
 
     return employee;
+  },
+  employeeShifts: async (args) => {
+    try {
+      const data = await Shift.find({ userId: args.id });
+      if (data.length === 0) throw new Error("No shifts yet");
+      const shifts = data.map((shift) => {
+        return {
+          ...shift._doc,
+          date: shift.date.toDateString(),
+          startingHour: shift.startingHour,
+          endingHour: shift.endingHour,
+        };
+      });
+      return shifts;
+    } catch (error) {
+      throw error;
+    }
   },
 };

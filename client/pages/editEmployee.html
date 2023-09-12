@@ -71,34 +71,8 @@
         </div>
       </nav>
     </div>
-    <!-- create a button for creating new employee and move to another page -->
-    <button
-      type="button"
-      class="btn btn-primary"
-      onclick="window.location.href='./newEmployee.html'"
-    >
-      New Employee
-    </button>
-    <!-- make the table in the center of the page  -->
-    <style>
-      .table {
-        width: 100%;
-        margin: 0 auto;
-        max-width: 1000px;
-      }
-    </style>
-    <div class="container d-flex justify-content-center mt-5">
-      <table class="table table-striped table-hover">
-        <thead>
-          <tr>
-            <th scope="col">Employee</th>
-            <th scope="col">Department</th>
-            <th scope="col">Shifts</th>
-          </tr>
-        </thead>
-        <tbody id="employeesTable"></tbody>
-      </table>
-    </div>
+
+    <h1>edit department</h1>
 
     <script
       src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
@@ -111,6 +85,10 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="../js/employees.js"></script>
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const departmentId = urlParams.get("id");
+      console.log(departmentId);
+    </script>
   </body>
 </html>
