@@ -36,10 +36,11 @@ module.exports = {
     return { userId: user.id, token: token, tokenExpiration: 1 };
   },
   user: async (args, req) => {
-    // if (!req.isAuth) {
-    //   throw new Error("Unauthenticated");
-    // }
-    //console.log(req.isAuth);
+    if (!req.isAuth) {
+      console.log("Unauthenticated");
+      throw new Error("Unauthenticated");
+    }
+
     try {
       const user = await User.findById(req.userId);
       return user;

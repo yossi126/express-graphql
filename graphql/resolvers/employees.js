@@ -4,7 +4,9 @@ const Shift = require("../../models/shift");
 module.exports = {
   employee: async (args) => {
     try {
-      const employee = await Employee.findById(args.id);
+      const employee = await Employee.findById(args.id).populate(
+        "departmentID"
+      );
       return employee;
     } catch (error) {
       throw error;
@@ -20,10 +22,11 @@ module.exports = {
   },
   createEmployee: async (args) => {
     try {
-      const employee = await Employee.create(args.employeeInput);
-      return employee;
+      await Employee.create(args.employeeInput);
+      return "Employee created successfully";
     } catch (error) {
-      throw error;
+      console.log(error);
+      return "Employee not created";
     }
   },
 

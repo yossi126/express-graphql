@@ -33,13 +33,9 @@ loginForm.addEventListener("submit", async (e) => {
     } = response;
 
     if (login) {
-      // Successful login, handle the token or redirect to another page
       const token = login.token;
-      console.log(token);
-      // You can store the token in local storage or a cookie
-      // and perform further actions like redirecting the user.
+
       localStorage.setItem("token", token);
-      console.log("Login successful");
 
       document.getElementById("username").value = "";
       document.getElementById("email").value = "";
@@ -54,8 +50,6 @@ loginForm.addEventListener("submit", async (e) => {
       "An error occurred during login. Please try again.";
   }
 });
-
-// write a function to redirect to the main.html page
 
 function redirectToMain() {
   // Redirect to the "main.html" page in the same folder

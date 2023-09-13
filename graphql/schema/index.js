@@ -2,8 +2,8 @@ const { buildSchema } = require("graphql");
 
 module.exports = buildSchema(`
 type Employee{
-    _id: ID!
-    firstName: String!
+    _id: ID
+    firstName: String
     departmentID: Department
 }
 
@@ -72,7 +72,7 @@ type RootQuery{
 }
 
 type RootMutation{
-createEmployee(employeeInput: EmployeeInput):Employee
+createEmployee(employeeInput: EmployeeInput):String
 updateEmployee(id: String, employee: EmployeeInput):Employee   
 deleteEmployee(id: String):Employee
 
