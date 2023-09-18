@@ -34,7 +34,7 @@ const start = async () => {
     await createUsersForDB();
     app.listen(port, () => {
       console.log(
-        `Running a GraphQL API server at http://localhost:${port}/graphql`
+        `Running a GraphQL API server at http://localhost:${port}/graphql, Login for the client at http://localhost:8000/login.html`
       );
     });
   } catch (error) {

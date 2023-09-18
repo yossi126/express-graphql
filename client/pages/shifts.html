@@ -65,11 +65,155 @@
               </li>
             </ul>
             <div class="d-lg-flex col-lg-3 justify-content-lg-end">
-              <button class="btn btn-danger" onclick="logout()">logout</button>
+              <button class="btn btn-danger" id="logout">logout</button>
             </div>
           </div>
         </div>
       </nav>
+    </div>
+
+    <div class="container">
+      <h3>create new shift</h3>
+      <div>
+        <form id="createNewShiftForm">
+          <div class="mb-3">
+            <label for="shiftDepartment" class="form-label">Shift Date</label>
+            <input
+              type="date"
+              class="form-control"
+              id="shiftDate"
+              aria-describedby="shiftDepartment"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="shiftStart" class="form-label">Shift Start</label>
+            <input
+              type="text"
+              class="form-control"
+              id="shiftStart"
+              aria-describedby="shiftStart"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label for="shiftEnd" class="form-label">Shift End</label>
+            <input
+              type="text"
+              class="form-control"
+              id="shiftEnd"
+              aria-describedby="shiftEnd"
+              required
+            />
+          </div>
+          <button type="submit" class="btn btn-primary" id="submit">
+            Submit
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 
+      create with bootstrap 1 row with 2 coloms with this instructions:
+      - in the lfet colom will be a select with 3  option "select shift", just for the example
+      - the right colom will bee hiddin form that only appear when the user select one of the option. the form will have:
+        3 inputs one for changing date, onw for starting hout and the last one for ending hour
+        in the buttom of the form will be checkboxes with employee name in them, creat 3 just for the example.
+     -->
+
+    <div class="container">
+      <h3>Edit shift</h3>
+      <h6>Select a shift to display her info</h6>
+      <div class="row">
+        <div class="col">
+          <select
+            id="select-shifts"
+            class="form-select"
+            aria-label="Default select example"
+          >
+            <option selected value="option-shift">select shift</option>
+          </select>
+        </div>
+        <div class="col" id="formContainer">
+          <div class="container">
+            <form id="editShiftForm">
+              <div class="mb-3">
+                <label for="shift-Date" class="form-label">Shift Date</label>
+                <!-- Change the input IDs -->
+                <input
+                  type="date"
+                  class="form-control"
+                  id="editShiftDate"
+                  aria-describedby="shiftDate"
+                  required
+                />
+                <p id="customFormattedDate"></p>
+              </div>
+              <div class="mb-3">
+                <label for="shiftStart" class="form-label">Shift Start</label>
+                <!-- Change the input IDs -->
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editShiftStart"
+                  aria-describedby="shiftStart"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="shiftEnd" class="form-label">Shift End</label>
+                <!-- Change the input IDs -->
+                <input
+                  type="text"
+                  class="form-control"
+                  id="editShiftEnd"
+                  aria-describedby="shiftEnd"
+                  required
+                />
+              </div>
+
+              <div>
+                <button type="submit" class="btn btn-primary" id="editSubmit">
+                  <!-- Change the button ID -->
+                  Submit
+                </button>
+              </div>
+            </form>
+            <form id="removeEmployeesForm">
+              <h6 id="message-to-remove">Employees to remove:</h6>
+              <div
+                id="checkboxes-div"
+                class="btn-group"
+                role="group"
+                aria-label="Basic checkbox toggle button group"
+              ></div>
+              <button type="submit" class="btn btn-primary" id="removeEmployee">
+                <!-- Change the button ID -->
+                Remove
+              </button>
+            </form>
+            <form id="addEmployeesForm">
+              <h6 id="alert-for-no-employees"></h6>
+              <div
+                id="checkboxes-div2"
+                class="btn-group2"
+                role="group"
+                aria-label="Basic checkbox toggle button group2"
+              ></div>
+
+              <button
+                type="submit"
+                class="btn btn-primary"
+                id="addEmployee"
+                visible="false"
+              >
+                <!-- Change the button ID -->
+                Add
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
     <script
       src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
@@ -82,6 +226,6 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="../js/shifts.js"></script>
+    <script type="module" src="../js/shifts.js"></script>
   </body>
 </html>

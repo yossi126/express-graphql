@@ -1,53 +1,96 @@
+import { getUser, logout, checkAuthentication } from "./utils.js";
+const logoutBtn = document.getElementById("logout");
+const addDepartmentBtn = document.getElementById("addDepartment");
+
 document.addEventListener("DOMContentLoaded", function () {
-  const getUser = async () => {
-    const token = localStorage.getItem("token");
-    try {
-      const response = await axios.post(
-        "http://localhost:8000/graphql",
-        {
-          query: `
-                {
-                  user {
-                    fullName
-                  }
-                }
-              `,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      // Handle the GraphQL response here
-
-      const { user } = response.data.data;
-      const fullName = document.getElementById("fullName");
-      fullName.textContent = `Welcome ${user.fullName}`;
-    } catch (error) {
-      console.error("GraphQL request error:", error);
-    }
-  };
-
+  window.onload = checkAuthentication;
+  logoutBtn.addEventListener("click", logout);
+  addDepartmentBtn.addEventListener("click", () => {
+    window.location.href = "newDepartment.html";
+  });
   getUser();
-
+  initEmployeesTable();
   const employeesLink = document.getElementById("departmentLink");
   employeesLink.classList.add("active");
 });
 
-// main.js
-function checkAuthentication() {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    window.location.href = "login.html"; // Redirect unauthenticated users to the login page
-  }
-}
+const initEmployeesTable = async () => {
+  try {
+    const departments = await getAllDepartments();
+    const employees = await getAllEmployees();
+    const departmnetsTable = document.getElementById("departmentTable");
 
-const logout = () => {
-  localStorage.removeItem("token");
-  window.location.href = "login.html";
+    departments.forEach((department) => {
+      const filteredEmployees = employees.filter((employee) =>
+        employee.departmentID !== null
+          ? employee.departmentID._id === department._id
+          : ""
+      );
+
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><a href="editDepartment.html?id=${department._id}">${
+        department.name
+      }</a></td>
+        <td>${
+          department.manager === null ? "No manager" : `${department.manager}`
+        }</td>
+        <td>${filteredEmployees
+          .map(
+            (employee) =>
+              `<a href="editEmployee.html?id=${employee._id}">${employee.firstName}</a>`
+          )
+          .join("<br>")}</td>
+      
+      `;
+      departmnetsTable.appendChild(row);
+    });
+  } catch (error) {
+    console.error("GraphQL request error initEmployeesTable:", error);
+  }
 };
 
-// Call the checkAuthentication function when the page loads
-window.onload = checkAuthentication;
+const getAllDepartments = async () => {
+  try {
+    const response = await axios.post("http://localhost:8000/graphql", {
+      query: `
+              {
+                departments {
+                  _id
+                  manager
+                  name
+                }
+              }
+            `,
+    });
+
+    const { departments } = response.data.data;
+    return departments;
+  } catch (error) {
+    console.error("GraphQL request error getAllDepartments:", error);
+  }
+};
+
+const getAllEmployees = async () => {
+  try {
+    const response = await axios.post("http://localhost:8000/graphql", {
+      query: `
+              {
+                employees {
+                  _id
+                  firstName
+                  departmentID{
+                    _id
+                      name
+                  }
+                }
+              }
+            `,
+    });
+
+    const { employees } = response.data.data;
+    return employees;
+  } catch (error) {
+    console.error("GraphQL request error getAllEmployees:", error);
+  }
+};

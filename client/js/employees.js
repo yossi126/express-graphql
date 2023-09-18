@@ -1,91 +1,21 @@
 import { getUser, logout, checkAuthentication } from "./utils.js";
 const logoutBtn = document.getElementById("logout");
 const employeesLink = document.getElementById("employeesLink");
+const departmentSelect = document.getElementById("departmentSelect");
 
 document.addEventListener("DOMContentLoaded", function () {
   window.onload = checkAuthentication;
   logoutBtn.addEventListener("click", logout);
   getUser();
-  createEmployeesForTable();
+  initEmployeesTable();
+  populateDepartmentDropdown();
   employeesLink.classList.add("active");
 });
 
-const createEmployeesForTable = async () => {
-  try {
-    const response = await axios.post("http://localhost:8000/graphql", {
-      query: `
-              {
-                employees {
-                  _id
-                  firstName
-                  departmentID{
-                    _id
-                      name
-                  }
-                }
-              }
-            `,
-    });
-
-    // get the data from the response
-    const { employees } = response.data.data;
-    // get the table
-    const employeesTable = document.getElementById("employeesTable");
-    // loop through the employees and create the table rows
-    employees.forEach(async (employee) => {
-      // create the table row
-      const tr = document.createElement("tr");
-      // create the table cells for the firstName
-      const td1 = document.createElement("td");
-      // create employee.firstName as a link to editEmployee.html page with the employee id
-      const a = document.createElement("a");
-      a.href = `editEmployee.html?id=${employee._id}`;
-      a.textContent = employee.firstName;
-      td1.appendChild(a);
-
-      // create the table cells for the department
-      const td2 = document.createElement("td");
-      const a2 = document.createElement("a");
-      // if the employee has no department yet create a simple string
-      if (employee.departmentID === null) {
-        employee.departmentID = { name: "No department yet" };
-        a2.textContent = employee.departmentID.name;
-        td2.appendChild(a2);
-        //else create a link to editDepartment.html page with the department id
-      } else {
-        a2.href = `editDepartment.html?id=${employee.departmentID._id}`;
-        a2.textContent = employee.departmentID.name;
-        td2.appendChild(a2);
-      }
-
-      // create the table cells for the shifts
-      const td3 = document.createElement("td");
-      try {
-        // get the shifts for the employee by his id
-        const shifts = await getShiftForEmployee(employee._id);
-        if (typeof shifts === "string") {
-          td3.innerHTML = shifts;
-        } else {
-          td3.innerHTML = shifts
-            .map((shift) => {
-              return `<div>${shift.date} ${shift.startingHour} - ${shift.endingHour}</div>`;
-            })
-            .join("");
-        }
-      } catch (error) {
-        td3.innerHTML = "An error occurred";
-      }
-      // append the table cells to the table row
-      tr.appendChild(td1);
-      tr.appendChild(td2);
-      tr.appendChild(td3);
-      // append the table row to the table
-      employeesTable.appendChild(tr);
-    });
-  } catch (error) {
-    console.error("GraphQL request error:", error);
-  }
-};
+departmentSelect.addEventListener("change", () => {
+  const selectedDepartment = departmentSelect.value;
+  filterEmployees(selectedDepartment);
+});
 
 const getShiftForEmployee = async (id) => {
   try {
@@ -115,5 +45,125 @@ const getShiftForEmployee = async (id) => {
   } catch (error) {
     console.log("Network error:", error);
     return error;
+  }
+};
+
+const getAllDepartments = async () => {
+  try {
+    const response = await axios.post("http://localhost:8000/graphql", {
+      query: `
+              {
+                departments {
+                  _id
+                  manager
+                  name
+                }
+              }
+            `,
+    });
+
+    const { departments } = response.data.data;
+    return departments;
+  } catch (error) {
+    console.error("GraphQL request error getAllDepartments:", error);
+  }
+};
+
+const populateDepartmentDropdown = async () => {
+  const departmentSelect = document.getElementById("departmentSelect");
+
+  // Clear existing options
+  departmentSelect.innerHTML = '<option value="">All Departments</option>';
+  const departments = await getAllDepartments();
+  // Add options for each department
+  departments.forEach((department) => {
+    const option = document.createElement("option");
+    option.value = department._id;
+    option.textContent = department.name;
+    departmentSelect.appendChild(option);
+  });
+};
+
+// Function to filter and display employees in a table
+const filterEmployees = async (selectedDepartment) => {
+  try {
+    const employees = await getAllEmployees();
+    const employeesTable = document.getElementById("employeesTable");
+    // Clear existing employee table
+    employeesTable.innerHTML = "";
+    // Filter employees based on the selected department
+    const filteredEmployees = employees.filter((employee) => {
+      return (
+        selectedDepartment === "" ||
+        (employee.departmentID &&
+          employee.departmentID._id === selectedDepartment)
+      );
+    });
+
+    // Display filtered employees in the table
+    filteredEmployees.forEach(async (employee) => {
+      const shifts = await getShiftForEmployee(employee._id);
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><a href="editEmployee.html?id=${employee._id}">${
+        employee.firstName
+      }</a></td>
+        <td>${
+          employee.departmentID
+            ? `<a href="editDepartment.html?id=${employee.departmentID._id}">${employee.departmentID.name}</a>`
+            : "No Department"
+        }</td>
+        <td>
+        ${
+          typeof shifts === "string"
+            ? shifts
+            : shifts
+                .map((shift) => {
+                  return `<div>${shift.date} ${shift.startingHour} - ${shift.endingHour}</div>`;
+                })
+                .join("")
+        }
+        </td>
+      `;
+
+      // You can fetch and add shifts data in the third column here
+      employeesTable.appendChild(row);
+    });
+  } catch (error) {
+    console.log("filterEmployees error:", error);
+  }
+};
+
+const getAllEmployees = async () => {
+  try {
+    const response = await axios.post("http://localhost:8000/graphql", {
+      query: `
+              {
+                employees {
+                  _id
+                  firstName
+                  departmentID{
+                    _id
+                      name
+                  }
+                }
+              }
+            `,
+    });
+
+    const { employees } = response.data.data;
+    return employees;
+  } catch (error) {
+    console.error("GraphQL request error getAllEmployees:", error);
+  }
+};
+
+// Initialize the employee table with all employees
+const initEmployeesTable = async () => {
+  try {
+    const employees = await getAllEmployees();
+    filterEmployees("", employees);
+  } catch (error) {
+    console.error("GraphQL request error:", error);
   }
 };

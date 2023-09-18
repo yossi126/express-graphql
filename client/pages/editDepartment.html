@@ -65,7 +65,7 @@
               </li>
             </ul>
             <div class="d-lg-flex col-lg-3 justify-content-lg-end">
-              <button class="btn btn-danger" onclick="logout()">logout</button>
+              <button class="btn btn-danger" id="logout">logout</button>
             </div>
           </div>
         </div>
@@ -73,6 +73,43 @@
     </div>
 
     <h1>edit department</h1>
+
+    <div class="container">
+      <form id="editDepartmentForm">
+        <div class="form-group">
+          <label for="departmentName">Department Name:</label>
+          <input
+            type="text"
+            name="departmentName"
+            class="form-control"
+            id="departmentName"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="manager">Manager:</label>
+          <select class="form-control" id="selectManager"></select>
+        </div>
+        <p>select employees to remove:</p>
+
+        <button type="submit" class="btn btn-primary" id="submit">
+          Update
+        </button>
+        <button type="button" class="btn btn-danger" id="delete">Delete</button>
+      </form>
+    </div>
+
+    <div>
+      <p>Add employee to the shift</p>
+      <form id="addEmployeeToDepartmentForm">
+        <div class="form-group">
+          <label for="departmentName">Employee:</label>
+          <select class="form-control" id="selectEmployee"></select>
+          <button type="submit" class="btn btn-primary" id="addBtn">Add</button>
+        </div>
+      </form>
+    </div>
 
     <script
       src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
@@ -86,10 +123,320 @@
     ></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
-    <script>
+    <script type="module">
+      import { getUser, logout, checkAuthentication } from "../js/utils.js";
+      const logoutBtn = document.getElementById("logout");
       const urlParams = new URLSearchParams(window.location.search);
-      const employeeId = urlParams.get("id");
-      console.log(employeeId);
+      const updateBtn = document.getElementById("submit");
+      const deleteBtn = document.getElementById("delete");
+      const addBtn = document.getElementById("addBtn");
+      const departmentId = urlParams.get("id");
+      const selectManager = document.getElementById("selectManager");
+      const selectEmployee = document.getElementById("selectEmployee");
+      const editDepartmentForm = document.getElementById("editDepartmentForm");
+      window.onload = checkAuthentication;
+
+      document.addEventListener("DOMContentLoaded", async function () {
+        popolateForm();
+        popolateAddEmployeeToShiftForm();
+        //getting the current user
+        getUser();
+        await getEmployeesNotInDepartment();
+        logoutBtn.addEventListener("click", logout);
+        deleteBtn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          if (
+            confirm("Are you sure you want to delete this department?") == true
+          ) {
+            const response = await deleteDepartment(departmentId);
+            console.log(response.data.data.deleteDepartment);
+            alert("Department deleted");
+            window.location.replace("./department.html");
+          } else {
+            console.log("You pressed Cancel!");
+          }
+        });
+        addBtn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          const employeeId = selectEmployee.value;
+          const response = await addEmployeeToDepartment(
+            departmentId,
+            employeeId
+          );
+          alert("employee added");
+          window.location.replace("./editDepartment.html?id=" + departmentId);
+        });
+        editDepartmentForm.addEventListener("submit", async function (event) {
+          event.preventDefault();
+          //find and delete the department
+          const department = {
+            name: document.getElementById("departmentName").value,
+            manager: selectManager.value,
+          };
+          const response = await updateDepartmentbyId({
+            id: departmentId,
+            department,
+          });
+
+          // then remove employees from department if checked
+          let employeesCheckboxesArray = [];
+          const checkboxes = document.querySelectorAll(
+            "#checkboxesContainer input[type=checkbox]"
+          );
+          // add all the ids to an array
+          checkboxes.forEach((ceckbox) => {
+            if (ceckbox.checked === false) return;
+            employeesCheckboxesArray.push(ceckbox.value);
+          });
+
+          //finelly call the function to remove the employees from the department
+          await updateEmployeesDepartmentToNull(employeesCheckboxesArray).then(
+            (response) => {
+              console.log(response);
+            }
+          );
+
+          alert(
+            `department updated. ${employeesCheckboxesArray.length} employees removed`
+          );
+          window.location.replace("./department.html");
+        });
+      });
+
+      const popolateForm = async () => {
+        try {
+          //get department
+          const { name: depName, manager } = await getDepartmentById(
+            departmentId
+          );
+          //assing values to form
+          document.getElementById("departmentName").value = depName;
+          const option = document.createElement("option");
+          option.value = manager;
+          option.innerHTML = manager;
+          document.getElementById("selectManager").appendChild(option);
+
+          //getting othe employees so they can added to the option list
+          const otherEmloyees = await getAllEmployees();
+          otherEmloyees.forEach((employee) => {
+            if (employee._id === manager) return;
+            let option = document.createElement("option");
+            option.value = employee._id;
+            option.innerHTML = employee.firstName;
+            document.getElementById("selectManager").appendChild(option);
+          });
+        } catch (error) {
+          console.log(`popolateForm error: ${error}`);
+        }
+
+        //checkboxes with all the emplyees from the department
+
+        //creating the checkbox with employees from department
+        // Assuming you have an array of employees
+        const filterdEmployees = await filterdEmloyees();
+
+        const form = document.getElementById("editDepartmentForm");
+        const checkboxesContainer = document.createElement("div");
+        checkboxesContainer.id = "checkboxesContainer";
+
+        // Loop through the employees and create radio buttons
+        filterdEmployees.forEach((employee) => {
+          const checkboxDiv = document.createElement("div");
+          checkboxDiv.className = "form-check form-check-inline";
+
+          const checkboxInput = document.createElement("input");
+          checkboxInput.className = "form-check-input";
+          checkboxInput.type = "checkbox";
+          checkboxInput.name = "employeeRadio"; // Set the same name for radio buttons in a group
+          checkboxInput.id = `inlineCheckbox${employee._id}`;
+          checkboxInput.value = employee._id;
+
+          const label = document.createElement("label");
+          label.className = "form-check-label";
+          label.htmlFor = `inlineCheckbox${employee._id}`;
+          label.textContent = employee.firstName;
+
+          // Append the checkbox and label to the container div
+
+          checkboxDiv.appendChild(checkboxInput);
+          checkboxDiv.appendChild(label);
+          // Append the container div to the checkboxesContainer
+          checkboxesContainer.appendChild(checkboxDiv);
+        });
+
+        // Now, you can insert checkboxesContainer where needed
+        form.insertBefore(
+          checkboxesContainer,
+          document.getElementById("submit")
+        );
+      };
+      const popolateAddEmployeeToShiftForm = async () => {
+        //get the data
+        const employees = await getAllEmployees();
+        const filterdEmployees = await filterdEmloyees();
+        // Get all employees not in filterdEmployees based on their _id
+        const otherEmployees = employees.filter((employee) => {
+          if (employee.departmentID === null) return true; // Include employees with null departmentID
+          return !filterdEmployees.some(
+            (filteredEmployee) => filteredEmployee._id === employee._id
+          );
+        });
+        // add the other employees to the selectEmployee options
+        otherEmployees.forEach((employee) => {
+          let option = document.createElement("option");
+          option.value = employee._id;
+          option.innerHTML = employee.firstName;
+          document.getElementById("selectEmployee").appendChild(option);
+        });
+      };
+      const filterdEmloyees = async () => {
+        const employees = await getAllEmployees();
+        const filterdEmloyees = employees.filter((employee) => {
+          if (employee.departmentID === null) return;
+          return employee.departmentID._id === departmentId;
+        });
+        return filterdEmloyees;
+      };
+      const getDepartmentById = async (departmentId) => {
+        try {
+          const response = await axios.post("http://localhost:8000/graphql", {
+            query: `
+                      query ($id: String){
+                        department(id:$id){
+                            _id
+                            name
+                            manager
+                          }
+                      }
+                      `,
+            variables: {
+              id: departmentId,
+            },
+          });
+          return response.data.data.department;
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      const updateDepartmentbyId = async ({ id, department }) => {
+        // the updated object
+        const update = {};
+
+        // Check if 'name' is provided and add it to the update object if it is
+        if (department.name) {
+          update.name = department.name;
+        }
+
+        // Check if 'manager' is provided and add it to the update object if it is
+        if (department.manager) {
+          update.manager = department.manager;
+        }
+        try {
+          const response = await axios.post("http://localhost:8000/graphql", {
+            query: `
+                    mutation($id:String,$department: DepartmentInput){
+                      updateDepartment(id: $id,department: $department)
+                    }
+                    `,
+            variables: {
+              id: departmentId,
+              department: update,
+            },
+          });
+          return response;
+          console.log(response);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      const updateEmployeesDepartmentToNull = async (arr) => {
+        try {
+          const response = await axios.post("http://localhost:8000/graphql", {
+            query: `
+                        mutation($employeeIds: [String]){
+                          updateEmployeesDepartmentToNull(employeeIds: $employeeIds)
+                      }
+                    `,
+            variables: {
+              employeeIds: arr,
+            },
+          });
+          return response;
+          console.log(response);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      const deleteDepartment = async (departmentId) => {
+        try {
+          const response = await axios.post("http://localhost:8000/graphql", {
+            query: `
+                  mutation($id:String){
+                    deleteDepartment(id:$id)
+                  }
+                  `,
+            variables: {
+              id: departmentId,
+            },
+          });
+          return response;
+          console.log(response);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      const getAllEmployees = async () => {
+        try {
+          const response = await axios.post("http://localhost:8000/graphql", {
+            query: `
+              {
+                employees {
+                  _id
+                  firstName
+                  departmentID{
+                    _id
+                      name
+                  }
+                }
+              }
+            `,
+          });
+
+          const { employees } = response.data.data;
+          return employees;
+        } catch (error) {
+          console.error("GraphQL request error getAllEmployees:", error);
+        }
+      };
+      const addEmployeeToDepartment = async (departmentId, employeeId) => {
+        try {
+          const employeeUpdated = await axios.post(
+            "http://localhost:8000/graphql",
+            {
+              query: `
+                      mutation($id: String,$employee: EmployeeInput ){
+                      updateEmployee(id: $id, employee: $employee){
+                          _id
+                          firstName
+                          departmentID{
+                          _id
+                          }
+                      }
+                  }
+                      `,
+              variables: {
+                id: employeeId,
+                employee: {
+                  departmentID: departmentId,
+                },
+              },
+            }
+          );
+          return employeeUpdated;
+        } catch (error) {
+          console.log(`employeeUpaded error: ${error}`);
+        }
+      };
     </script>
   </body>
 </html>

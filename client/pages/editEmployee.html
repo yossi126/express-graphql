@@ -95,7 +95,7 @@
         <button type="submit" class="btn btn-primary" id="submit">
           Update
         </button>
-        <button type="button" class="btn btn-danger" id="cancel">Cancel</button>
+        <button type="button" class="btn btn-danger" id="delete">Delete</button>
       </form>
     </div>
 
@@ -107,13 +107,13 @@
         <select class="form-control" id="selectShift"></select>
       </div>
 
-      <button type="submit" class="btn btn-primary" id="submit">
+      <button type="submit" class="btn btn-primary" id="submit-shift">
         Add Shift
       </button>
     </form>
 
     <!-- create a table for all employee shifts  -->
-
+    <p id="errorMessage" style="color: red"></p>
     <table class="table table-striped table-hover" id="shiftsTable">
       <thead>
         <tr>
@@ -140,33 +140,48 @@
     <script type="module">
       import { getUser, logout, checkAuthentication } from "../js/utils.js";
 
+      window.onload = checkAuthentication();
       const urlParams = new URLSearchParams(window.location.search);
       const employeeId = urlParams.get("id");
       const selecteDepartment = document.getElementById("selectDepartment");
       const logoutBtn = document.getElementById("logout");
-      window.onload = checkAuthentication();
+      const deleteBtn = document.getElementById("delete");
       logoutBtn.addEventListener("click", logout);
 
       document.addEventListener("DOMContentLoaded", function () {
-        const logoutBtn = document.getElementById("logout");
         const employeeName = document.getElementById("employeeName");
-        logoutBtn.addEventListener("click", logout);
+        const editEmployeeForm = document.getElementById("editEmployeeForm");
+        const addShiftForm = document.getElementById("addShiftForm");
+        const shiftsTable = document.getElementById("shiftsTable");
+        const shiftsTableBody = document.getElementById("shiftsTableBody");
+        const errorMessage = document.getElementById("errorMessage");
+        const selectShift = document.getElementById("selectShift");
 
         getUser();
         getEmployee();
         popolateShiftsTable();
 
-        const editEmployeeForm = document.getElementById("editEmployeeForm");
         editEmployeeForm.addEventListener("submit", (e) => {
           e.preventDefault();
           updateEmployee();
         });
 
-        const addShiftForm = document.getElementById("addShiftForm");
         addShiftForm.addEventListener("submit", (e) => {
           e.preventDefault();
           addShift();
         });
+      });
+
+      deleteBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (confirm("Are you sure you want to delete this employee?") == true) {
+          deleteEmployee();
+          alert("employee deleted successfully");
+          window.location.replace("./employees.html");
+        } else {
+          // Do nothing!
+          return;
+        }
       });
 
       const addShift = async () => {
@@ -195,9 +210,7 @@
 
           console.log(response);
           alert("shift added successfully");
-
-          //TODO: FIX THIS
-          popolateShiftsTable();
+          window.location.replace("./employees.html");
         } catch (error) {
           console.log(error);
         }
@@ -205,70 +218,65 @@
 
       const popolateShiftsTable = async () => {
         try {
-          const response = await axios.post("http://localhost:8000/graphql", {
-            query: `query($id: String){
-                          employeeShifts(id: $id){
-                              _id
-                              date
-                              startingHour
-                              endingHour
-                          }
-                      }
-                    `,
-            variables: {
-              id: employeeId,
-            },
-          });
+          const employeeShifts = await getEmployeeShifts(employeeId);
 
-          const shifts = response.data.data.employeeShifts;
-          const shiftsTableBody = document.getElementById("shiftsTableBody");
-          shifts.forEach((shift) => {
-            const tr = document.createElement("tr");
-            const dateTd = document.createElement("td");
-            const startingHourTd = document.createElement("td");
-            const endingHourTd = document.createElement("td");
-            dateTd.innerHTML = shift.date;
-            startingHourTd.innerHTML = shift.startingHour;
-            endingHourTd.innerHTML = shift.endingHour;
-            tr.appendChild(dateTd);
-            tr.appendChild(startingHourTd);
-            tr.appendChild(endingHourTd);
-            shiftsTableBody.appendChild(tr);
-          });
-
-          const responseShifts = await axios.post(
-            "http://localhost:8000/graphql",
-            {
-              query: `
-            {
-               shifts{
-                 _id
-                 date
-                 startingHour
-                 endingHour
-                }
-             }
-              `,
-            }
-          );
-          const shiftsOptions = responseShifts.data.data.shifts;
-          const selectShift = document.getElementById("selectShift");
-          // loop throw shifts and add just the selected shift that dosent appear in shifts
-          shiftsOptions.forEach((shift) => {
-            let isExist = false;
-            shifts.forEach((shiftEmployee) => {
-              if (shift._id === shiftEmployee._id) {
-                isExist = true;
-              }
+          if (employeeShifts === null) {
+            errorMessage.innerHTML = "no shifts for this employee";
+            // shiftsTable.hidden = true;
+            // addShiftForm.hidden = true;
+            // return;
+          } else {
+            employeeShifts.forEach((shift) => {
+              const tr = document.createElement("tr");
+              const dateTd = document.createElement("td");
+              const startingHourTd = document.createElement("td");
+              const endingHourTd = document.createElement("td");
+              dateTd.innerHTML = shift.date;
+              startingHourTd.innerHTML = shift.startingHour;
+              endingHourTd.innerHTML = shift.endingHour;
+              tr.appendChild(dateTd);
+              tr.appendChild(startingHourTd);
+              tr.appendChild(endingHourTd);
+              shiftsTableBody.appendChild(tr);
             });
-            if (!isExist) {
+          }
+
+          const allShifts = await getAllShifts();
+
+          // if there is no shit for the user, get them all
+          if (employeeShifts === null) {
+            allShifts.forEach((shift) => {
               const option = document.createElement("option");
               option.value = shift._id;
               option.innerHTML = shift.date;
               selectShift.appendChild(option);
-            }
-          });
-        } catch (error) {}
+            });
+          } else {
+            // loop throw shifts and add just the selected shift that dosent appear in shifts
+            allShifts.forEach((shift) => {
+              let isExist = false;
+              employeeShifts.forEach((shiftEmployee) => {
+                if (shift._id === shiftEmployee._id) {
+                  isExist = true;
+                }
+              });
+              if (!isExist) {
+                const option = document.createElement("option");
+                option.value = shift._id;
+                option.innerHTML = shift.date;
+                selectShift.appendChild(option);
+              }
+            });
+          }
+          if (allShifts.length === employeeShifts.length) {
+            document.getElementById("submit-shift").disabled = true;
+            const option = document.createElement("option");
+            option.innerHTML = "no shifts available";
+            selectShift.appendChild(option);
+          }
+        } catch (error) {
+          console.log(error);
+        }
       };
 
       const updateEmployee = async () => {
@@ -304,34 +312,16 @@
 
       const getEmployee = async () => {
         try {
-          const response = await axios.post("http://localhost:8000/graphql", {
-            query: `query($id: String ){
-                         employee(id: $id){
-                          _id
-                          firstName
-                          departmentID{
-                             _id
-                              name
-                            }
-                         }
-                      }
-                       `,
-            variables: {
-              id: employeeId,
-            },
-          });
-
-          //alert the user that the employee was created and go back to the employees page
-          const employee = response.data.data.employee;
-          //fill the form with the employee data
-          employeeName.value = employee.firstName;
+          const { firstName, departmentID } = await getEmployeeById(employeeId);
+          //add values to the inputs
+          employeeName.value = firstName;
           const option = document.createElement("option");
-          if (employee.departmentID === null) {
+          if (departmentID === null) {
             option.value = "";
             option.innerHTML = "no department";
           } else {
-            option.value = employee.departmentID._id;
-            option.innerHTML = employee.departmentID.name;
+            option.value = departmentID._id;
+            option.innerHTML = departmentID.name;
           }
           selecteDepartment.appendChild(option);
 
@@ -351,17 +341,103 @@
           const departments = responseDepartments.data.data.departments;
           //fill the select tag with all departments except the employee department
           departments.forEach((department) => {
-            if (employee.departmentID === null) {
+            //if the employee department is null
+            if (departmentID === null) {
               const option = document.createElement("option");
               option.value = department._id;
               option.innerHTML = department.name;
               selecteDepartment.appendChild(option);
-            } else if (department._id !== employee.departmentID._id) {
+              // if the emplyee has a department
+            } else if (department._id !== departmentID._id) {
               const option = document.createElement("option");
               option.value = department._id;
               option.innerHTML = department.name;
               selecteDepartment.appendChild(option);
             }
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+      const getEmployeeById = async (id) => {
+        try {
+          const response = await axios.post("http://localhost:8000/graphql", {
+            query: `query($id: String ){
+                         employee(id: $id){
+                          _id
+                          firstName
+                          departmentID{
+                             _id
+                              name
+                            }
+                         }
+                      }
+                       `,
+            variables: {
+              id: id,
+            },
+          });
+
+          const employee = response.data.data.employee;
+
+          return employee;
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+      const getEmployeeShifts = async (id) => {
+        const response = await axios.post("http://localhost:8000/graphql", {
+          query: `query($id: String){
+                          employeeShifts(id: $id){
+                              _id
+                              date
+                              startingHour
+                              endingHour
+                          }
+                      }
+                    `,
+          variables: {
+            id: id,
+          },
+        });
+        return response.data.data.employeeShifts;
+      };
+
+      const getAllShifts = async () => {
+        const responseShifts = await axios.post(
+          "http://localhost:8000/graphql",
+          {
+            query: `
+            {
+               shifts{
+                 _id
+                 date
+                 startingHour
+                 endingHour
+                }
+             }
+              `,
+          }
+        );
+        return responseShifts.data.data.shifts;
+      };
+
+      const deleteEmployee = async () => {
+        try {
+          const response = await axios.post("http://localhost:8000/graphql", {
+            query: `
+          mutation($id: String){
+            deleteEmployee(id: $id){
+              _id
+              firstName
+            }
+          }
+          `,
+            variables: {
+              id: employeeId,
+            },
           });
         } catch (error) {
           console.log(error);

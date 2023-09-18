@@ -1,9 +1,8 @@
 import { getUser, logout, checkAuthentication } from "./utils.js";
 
-const logoutBtn = document.getElementById("logout");
-const employeesLink = document.getElementById("homeLink");
-
 document.addEventListener("DOMContentLoaded", function () {
+  const logoutBtn = document.getElementById("logout");
+  const employeesLink = document.getElementById("homeLink");
   // Call the checkAuthentication function when the page loads
   window.onload = checkAuthentication;
   // Add the logout event listener to the logout button
@@ -14,3 +13,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 checkAuthentication();
+
+const d = new Date();
+console.log(d.toISOString());

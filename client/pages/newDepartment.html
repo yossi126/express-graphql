@@ -71,21 +71,25 @@
         </div>
       </nav>
     </div>
-    <button class="btn btn-primary" id="addDepartment">Add Department</button>
+
+    <h1>new department</h1>
     <div class="container">
-      <div class="container d-flex justify-content-center mt-5">
-        <table class="table table-striped table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Department</th>
-              <th scope="col">Manager</th>
-              <th scope="col">Employees</th>
-            </tr>
-          </thead>
-          <tbody id="departmentTable"></tbody>
-        </table>
-      </div>
+      <form id="createDepartmentForm">
+        <div class="form-group">
+          <label for="deparmentName">Department Name:</label>
+          <input
+            type="text"
+            name="deparmentName"
+            class="form-control"
+            id="deparmentName"
+            required
+          />
+        </div>
+        <button type="submit" class="btn btn-primary" id="submit">Save</button>
+        <button type="button" class="btn btn-danger" id="cancel">Cancel</button>
+      </form>
     </div>
+
     <script
       src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
       integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
@@ -97,6 +101,46 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script type="module" src="../js/department.js"></script>
+    <script type="module">
+      import { getUser, logout, checkAuthentication } from "../js/utils.js";
+      const logoutBtn = document.getElementById("logout");
+      const cancelBtn = document.getElementById("cancel");
+      const form = document.getElementById("createDepartmentForm");
+      document.addEventListener("DOMContentLoaded", function () {
+        logoutBtn.addEventListener("click", logout);
+        checkAuthentication();
+        getUser();
+      });
+      cancelBtn.addEventListener("click", () => {
+        window.location.replace("./department.html");
+      });
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const department = await createDepartment();
+        alert(department.data.data.createDepartment);
+        window.location.replace("./department.html");
+      });
+
+      const createDepartment = async () => {
+        try {
+          const response = await axios.post("http://localhost:8000/graphql", {
+            query: `
+                mutation($departmentInput: DepartmentInput){
+                    createDepartment(departmentInput: $departmentInput)
+                }
+             `,
+            variables: {
+              departmentInput: {
+                name: document.getElementById("deparmentName").value,
+              },
+            },
+          });
+          return response;
+        } catch (error) {
+          return error;
+        }
+      };
+    </script>
   </body>
 </html>

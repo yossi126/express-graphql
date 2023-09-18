@@ -35,6 +35,8 @@ type Shift{
 
 input EmployeeInput{
     firstName: String
+    lastName: String
+    startWorkYear: Int
     departmentID: String
 }
 
@@ -52,6 +54,8 @@ input UserInput{
 
 input ShiftInput{
     date: String
+    startingHour: Int
+    endingHour: Int
 }
 
 type RootQuery{
@@ -76,13 +80,20 @@ createEmployee(employeeInput: EmployeeInput):String
 updateEmployee(id: String, employee: EmployeeInput):Employee   
 deleteEmployee(id: String):Employee
 
-createDepartment(departmentInput: DepartmentInput):Department
-updateDepartment(id: String, department: DepartmentInput):Department
+createDepartment(departmentInput: DepartmentInput):String
+updateDepartment(id: String, department: DepartmentInput):String
+deleteDepartment(id: String):String
+updateEmployeesDepartmentToNull(employeeIds: [String]):String
 
 createUser(userInput: UserInput): [User]
 
-createShift(shiftInput: ShiftInput): Shift
+createShift(shiftInput: ShiftInput): String
 addUserToShift(shiftId: String, userId: String): Shift
+updateShift(id: String, shift: ShiftInput): String
+removeEmployeesFromShift(shiftId: String, employeeIds: [String]): String
+addEmployeesFromShift(shiftId: String, employeeIds: [String]): String
+updateShiftEmployees(shiftId: String, employeeIdsToAdd: [String], employeeIdsToRemove:[String]): String
+
 
 }
 
