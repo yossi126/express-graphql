@@ -3,10 +3,8 @@ const { checkRemainActionsInMiddeleware } = require("../utils/log-utils");
 
 module.exports = async (req, res, next) => {
   const authHeader = req.headers.authorization;
-
   if (!authHeader) {
     req.isAuth = false;
-
     return next();
   }
   const token = authHeader.split(" ")[1]; //Bearer token
@@ -32,20 +30,19 @@ module.exports = async (req, res, next) => {
     //console.log("4", req.path);
     return next();
   }
+  const checkRemainActions = await checkRemainActionsInMiddeleware(
+    req.userId,
+    req.headers.actioncount
+  );
+  if (checkRemainActions === false) {
+    req.actionsLeft = false;
+    return next();
+  }
 
   req.isAuth = true;
   req.userId = decodedToken.userId;
   req.actions = decodedToken.numOfActions;
   req.actionCount = req.headers.actioncount;
-
-  const resutl = await checkRemainActionsInMiddeleware(
-    req.userId,
-    req.headers.actioncount
-  );
-  if (resutl === false) {
-    req.actionsLeft = false;
-    return next();
-  }
 
   //console.log("5", req.path);
   next();

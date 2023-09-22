@@ -2,20 +2,23 @@ const jsonfile = require("jsonfile");
 const fs = require("fs");
 const path = require("path");
 
+//directions for the log file
+const directoryName = "logs";
+const actionsLogFileName = "actions-log.json";
+// Define the path to the actions log directory
+const rootDirectory = path.dirname(require.main.filename);
+const directoryPath = path.join(rootDirectory, directoryName);
+// Define the path to the actions log file
+const actionsLogFilePath = path.join(directoryPath, actionsLogFileName);
+// Check if the actions log file exists
+const doesActionsLogFileExist = fs.existsSync(actionsLogFilePath);
+
+// function to create the log file
 const createLogFile = async () => {
-  const directoryName = "logs";
-  const actionsLogFileName = "actions-log.json";
-  // Define the path to the actions log directory
-  const rootDirectory = path.dirname(require.main.filename);
-  const directoryPath = path.join(rootDirectory, directoryName);
   // Create the directory if it doesn't exist
   if (!fs.existsSync(directoryPath)) {
     fs.mkdirSync(directoryPath);
   }
-  // Define the path to the actions log file
-  const actionsLogFilePath = path.join(directoryPath, actionsLogFileName);
-  // Check if the actions log file exists
-  const doesActionsLogFileExist = fs.existsSync(actionsLogFilePath);
   // If the file doesn't exist, create it with an empty array
   if (!doesActionsLogFileExist) {
     jsonfile.writeFileSync(actionsLogFilePath, []);
@@ -26,72 +29,59 @@ const createLogFile = async () => {
 };
 
 const writeToLogFile = async (userId, maxActions, usedActions) => {
-  const directoryName = "logs";
-  const actionsLogFileName = "actions-log.json";
-  // Define the path to the actions log directory
-  const rootDirectory = path.dirname(require.main.filename);
-  const directoryPath = path.join(rootDirectory, directoryName);
-  // Define the path to the actions log file
-  const actionsLogFilePath = path.join(directoryPath, actionsLogFileName);
   const data = await jsonfile.readFile(actionsLogFilePath);
-  // if its the fisrt time the log is been written
-
   //creating a date formatted as dd/mm/yyyy
   const formattedDate = createFormattedDate();
+  // filter only the logs with the current date
   const filteredData = data.filter((item) => {
     return item.id === userId && item.date === formattedDate;
   });
-
+  // if its the fisrt time the log is been written
   if (filteredData.length === 0 && userId !== undefined) {
     console.log("wrtie to log file for first time....");
-
     data.push({
       id: userId,
       maxActions: maxActions,
       date: formattedDate,
       actionAllowd: maxActions - usedActions,
     });
-    jsonfile.writeFileSync(actionsLogFilePath, data); // Provide the full path
-  } else {
+    jsonfile.writeFileSync(actionsLogFilePath, data);
+  } else if (userId !== undefined) {
+    //loop throw the user logs and get the last actionAllowd that means how much actions left for the user
     let lastActionAllowd = null;
     for (const item of filteredData) {
       if (item.actionAllowd !== undefined) {
         lastActionAllowd = item.actionAllowd;
       }
     }
-    //console.log(typeof lastActionAllowd, typeof usedActions);
-    if (lastActionAllowd === parseInt(usedActions)) {
-      //console.log(lastActionAllowd, usedActions);
-    }
+
+    data.push({
+      id: userId,
+      maxActions: maxActions,
+      date: formattedDate,
+      actionAllowd: lastActionAllowd - usedActions,
+    });
+    jsonfile.writeFileSync(actionsLogFilePath, data);
   }
 };
 
 const checkRemainActions = async (userId) => {
-  const directoryName = "logs";
-  const actionsLogFileName = "actions-log.json";
-  // Define the path to the actions log directory
-  const rootDirectory = path.dirname(require.main.filename);
-  const directoryPath = path.join(rootDirectory, directoryName);
-  // Define the path to the actions log file
-  const actionsLogFilePath = path.join(directoryPath, actionsLogFileName);
   const data = await jsonfile.readFile(actionsLogFilePath);
   if (data.length === 0) {
     return true;
   } else {
     const currentFormattedDate = createFormattedDate();
-
+    // filter only the logs with the current date
     const filteredData = data.filter((item) => {
       return item.id === userId && item.date === currentFormattedDate;
     });
-
+    //loop throw the user logs and get the last actionAllowd that means how much actions left for the user
     let lastActionAllowd = null;
-
     for (const item of filteredData) {
       if (item.actionAllowd !== undefined) {
         lastActionAllowd = item.actionAllowd;
       }
     }
-
     if (lastActionAllowd === 0) {
       throw new Error("no actions left for today ! come back tomarrow");
     }
@@ -100,22 +90,17 @@ const checkRemainActions = async (userId) => {
 };
 
 const checkRemainActionsInMiddeleware = async (userId, actionCount) => {
-  const directoryName = "logs";
-  const actionsLogFileName = "actions-log.json";
-  // Define the path to the actions log directory
-  const rootDirectory = path.dirname(require.main.filename);
-  const directoryPath = path.join(rootDirectory, directoryName);
-  // Define the path to the actions log file
-  const actionsLogFilePath = path.join(directoryPath, actionsLogFileName);
   const data = await jsonfile.readFile(actionsLogFilePath);
   let lastActionAllowd = null;
   const currentFormattedDate = createFormattedDate();
+  // filter only the logs with the current date
   const filteredData = data.filter((item) => {
     return item.id === userId && item.date === currentFormattedDate;
   });
   if (data.length === 0) {
     return true;
   } else {
+    //loop throw the user logs and get the last actionAllowd that means how much actions left for the user
     for (const item of filteredData) {
       if (item.actionAllowd !== undefined) {
         lastActionAllowd = item.actionAllowd;

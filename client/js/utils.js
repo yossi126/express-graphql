@@ -1,12 +1,19 @@
-function trackUserAction(numOfActions) {
+// function that track the user actions and check if he reached the limit in one enty for the website
+async function trackUserAction(numOfActions) {
   let actionCount = parseInt(localStorage.getItem("actionCount"));
-  if (actionCount === numOfActions) {
-    console.log("riched the limit");
-  }
   actionCount++;
   localStorage.setItem("actionCount", actionCount);
+  // if the user reach the limit of actions in one entry for the website
+  if (actionCount === numOfActions) {
+    alert("You reached your actions limit for today");
+    await logout();
+    localStorage.removeItem("token");
+    localStorage.removeItem("actionCount");
+  }
+  return actionCount;
 }
 
+//get the current user from the server
 export const getUser = async () => {
   const token = localStorage.getItem("token");
   try {
@@ -33,19 +40,16 @@ export const getUser = async () => {
     const { data, errors } = response.data;
 
     if (errors) {
-      console.log(errors);
-      // create a alert window at take the user back to the login page and clear history so he can't go back
+      // create an alert window and take the user back to the login page and clear history so he can't go back
       alert(errors[0].message);
       window.location.href = "login.html";
       return;
     }
 
-    trackUserAction(data.user.numOfActions);
-
-    // Handle the GraphQL response here
+    const actionsLeft = await trackUserAction(data.user.numOfActions);
     const { user } = response.data.data;
     const fullName = document.getElementById("fullName");
-    fullName.textContent = `Welcome ${user.fullName}`;
+    fullName.textContent = `Welcome ${user.fullName}, ${actionsLeft}`;
   } catch (error) {
     console.error("GraphQL request error:", error);
   }
@@ -74,7 +78,6 @@ export const logout = async () => {
     let actionCount = parseInt(localStorage.getItem("actionCount"));
     actionCount--;
     localStorage.setItem("actionCount", actionCount);
-    console.log(actionCount);
 
     localStorage.removeItem("token");
     localStorage.removeItem("actionCount");

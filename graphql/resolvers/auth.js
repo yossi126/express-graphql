@@ -15,9 +15,7 @@ module.exports = {
         numOfActions: 10,
       });
     });
-
     const usersdb = await User.find({});
-
     return usersdb;
   },
   login: async ({ userName, email }) => {
@@ -36,7 +34,7 @@ module.exports = {
       throw new Error("User not found in db");
     }
 
-    //check if the user has actions left
+    //check if the user has actions left, if not he will logged out
     try {
       await checkRemainActions(user.id);
     } catch (error) {
@@ -53,8 +51,6 @@ module.exports = {
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
-    // console.log("here");
-    // writeToLogFile(user.id, existingUser.numOfActions, 0);
     return { userId: user.id, token: token, tokenExpiration: 1 };
   },
   user: async (args, req) => {
@@ -68,10 +64,22 @@ module.exports = {
 
     try {
       const user = await User.findById(req.userId);
-
-      const result = await checkRemainActions(user._id);
-      // console.log("Request Headers get user user:", result);
       return user;
+    } catch (err) {
+      throw err;
+    }
+  },
+  users: async (args, req) => {
+    if (!req.isAuth) {
+      console.log("Unauthenticated");
+      throw new Error("Unauthenticated");
+    }
+    if (req.actionsLeft === false) {
+      throw new Error("no actions left");
+    }
+    try {
+      const users = await User.find({});
+      return users;
     } catch (err) {
       throw err;
     }
@@ -83,11 +91,6 @@ module.exports = {
     const user = await User.findOne({ _id: decodedToken.userId });
 
     writeToLogFile(user._id, user.numOfActions, actionsCount);
-
-    //console.log(user);
-    //console.log(req);
-    //const existingUser = await User.findOne({ _id: req.userId });
-    //console.log(existingUser);
 
     return "logout";
   },

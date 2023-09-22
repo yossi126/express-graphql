@@ -10,7 +10,6 @@ const resovlers = require("./graphql/resolvers/index");
 //utils
 const createUsersForDB = require("./utils/createUsersForDB");
 const authMiddleware = require("./middleware/is-auth");
-const countActionsMiddleware = require("./middleware/actionsCount");
 
 const { createLogFile, writeToLogFile } = require("./utils/log-utils");
 

@@ -5,72 +5,32 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
       rel="stylesheet"
-      integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
-      crossorigin="anonymous"
+      href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
     />
   </head>
 
   <body>
-    <div class="container">
-      <nav
-        class="navbar navbar-expand-lg bg-body-tertiary"
-        aria-label="Thirteenth navbar example"
-      >
-        <div class="container-fluid">
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarsExample11"
-            aria-controls="navbarsExample11"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button>
-
-          <div class="collapse navbar-collapse d-lg-flex" id="navbarsExample11">
-            <a class="navbar-brand col-lg-3 me-0" href="#" id="fullName"
-              >Centered nav</a
-            >
-            <ul class="navbar-nav col-lg-6 justify-content-lg-center">
-              <li class="nav-item">
-                <a
-                  class="nav-link"
-                  id="homeLink"
-                  aria-current="page"
-                  href="./main.html"
-                  >Home</a
-                >
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" id="employeesLink" href="./employees.html"
-                  >Employees</a
-                >
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" id="departmentLink" href="./department.html"
-                  >Department</a
-                >
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" id="shiftsLink" href="./shifts.html"
-                  >Shifts</a
-                >
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" id="usersLink" href="./users.html">Users</a>
-              </li>
-            </ul>
-            <div class="d-lg-flex col-lg-3 justify-content-lg-end">
-              <button class="btn btn-danger" id="logout">logout</button>
-            </div>
-          </div>
+    <div class="ui container">
+      <div class="ui large secondary pointing menu">
+        <a class="item col-lg-3" id="fullName" href="#"> Centered nav </a>
+        <div class="ui col-lg-6 menu">
+          <a class="item" id="homeLink" href="./main.html"> Home </a>
+          <a class="item" id="employeesLink" href="./employees.html">
+            Employees
+          </a>
+          <a class="item" id="departmentLink" href="./department.html">
+            Department
+          </a>
+          <a class="item" id="shiftsLink" href="./shifts.html"> Shifts </a>
+          <a class="item" id="usersLink" href="./users.html"> Users </a>
         </div>
-      </nav>
+        <div class="ui col-lg-3 right menu">
+          <button class="ui red button" id="logout">Logout</button>
+        </div>
+      </div>
     </div>
+
     <script
       src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
       integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"

@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     "alert-for-no-employees"
   );
   const editShiftForm = document.getElementById("editShiftForm");
+  document.getElementById("removeESubmit").disabled = true;
+  document.getElementById("addESubmit").disabled = true;
 
   //log out button
   logoutBtn.addEventListener("click", logout);
@@ -27,7 +29,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   // select the option (date) from the dropdown
 
   toggle.addEventListener("change", async (event) => {
-    console.log("select shift up");
     //start popolate the inputs with the shift data
     const editShiftDate = document.getElementById("editShiftDate");
     const editShiftStart = document.getElementById("editShiftStart");
@@ -63,7 +64,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       checkboxesDiv.innerHTML = "";
       alertForNoEmployees.innerHTML = "";
       checkboxesDivForOtherEmployees.innerHTML = "";
-
+      document.getElementById("removeESubmit").disabled = false;
+      document.getElementById("addESubmit").disabled = false;
       msgToRemove.innerHTML = "Shift employee. Select to remove:";
       //if there is no employees in the shift, display all the employees in the checkboxes
       if (shift.userId.length === 0) {
@@ -76,15 +78,17 @@ document.addEventListener("DOMContentLoaded", async function () {
           // Use index to create unique IDs
           const input = document.createElement("input");
           input.type = "checkbox";
-          input.classList.add("btn-check");
+          input.classList.add("ui", "checkbox"); // Add Semantic UI classes
           input.id = `checkbox-${index}`; // Unique ID for each checkbox
           input.autocomplete = "off";
           input.dataset.availableId = user._id;
+
           const label = document.createElement("label");
-          label.classList.add("btn", "btn-outline-primary");
+          label.classList.add("ui", "basic", "primary", "button"); // Add Semantic UI classes
           label.htmlFor = `checkbox-${index}`; // Matching unique ID
           label.innerText = user.firstName;
-          //applay the elements in the div container
+
+          // Apply the elements in the div container
           checkboxesDivForOtherEmployees.appendChild(input);
           checkboxesDivForOtherEmployees.appendChild(label);
         });
@@ -95,18 +99,19 @@ document.addEventListener("DOMContentLoaded", async function () {
       //creating checkboxes for each user
       shift.userId.forEach((user, index) => {
         // Use index to create unique IDs
-        //console.log(user._id);
         const input = document.createElement("input");
         input.type = "checkbox";
-        input.classList.add("btn-check");
+        input.classList.add("ui", "checkbox"); // Add Semantic UI classes
         input.id = `checkbox-${index}`; // Unique ID for each checkbox
         input.dataset.existId = user._id;
         input.autocomplete = "off";
+
         const label = document.createElement("label");
-        label.classList.add("btn", "btn-outline-primary");
+        label.classList.add("ui", "basic", "primary", "button"); // Add Semantic UI classes
         label.htmlFor = `checkbox-${index}`; // Matching unique ID
         label.innerText = user.firstName;
-        //applay the elements in the div container
+
+        // Apply the elements in the div container
         checkboxesDiv.appendChild(input);
         checkboxesDiv.appendChild(label);
       });
@@ -124,20 +129,22 @@ document.addEventListener("DOMContentLoaded", async function () {
       otherEmployees.innerHTML = "";
       alertForAvailabeEmployees.innerHTML =
         "Available employees. Select to add:";
+
       otherEmployees.forEach((user, index) => {
         // Use index to create unique IDs
         const input = document.createElement("input");
         input.type = "checkbox";
-        input.classList.add("btn-check");
+        input.classList.add("ui", "checkbox"); // Add Semantic UI classes
         input.id = `checkbox-${index}-${index}`; // Unique ID for each checkbox
         input.dataset.availableId = user._id;
         input.autocomplete = "off";
 
         const label = document.createElement("label");
-        label.classList.add("btn", "btn-outline-primary");
+        label.classList.add("ui", "basic", "outline", "primary", "button"); // Add Semantic UI classes
         label.htmlFor = `checkbox-${index}-${index}`; // Matching unique ID
         label.innerText = user.firstName;
-        //applay the elements in the div container
+
+        // Apply the elements in the div container
         checkboxesDivForOtherEmployees.appendChild(input);
         checkboxesDivForOtherEmployees.appendChild(label);
       });
@@ -261,6 +268,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     const formElements = document.querySelectorAll(
       "#editShiftForm input, #editShiftForm select, #editSubmit"
     );
+    const formElements2 = document.querySelectorAll(
+      "#editShiftForm input, #editShiftForm select, #editSubmit"
+    );
 
     if (selectElement.value !== "option-shift") {
       // Enable the form elements
@@ -276,6 +286,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         // console.log(selectElement.value);
         element.disabled = true;
       });
+      console.log(checkboxesDiv);
+      checkboxesDiv.innerHTML = "";
+      checkboxesDivForOtherEmployees.innerHTML = "";
+      document.getElementById("removeESubmit").disabled = true;
+      document.getElementById("addESubmit").disabled = true;
     }
   }
   const popolateShiftstoOptions = async () => {

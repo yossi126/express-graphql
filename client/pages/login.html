@@ -1,52 +1,64 @@
-<!-- 
-Create a basic html login page with the following features:
-- Use bootstrap for styling
-- add axios to the page
-- a form that a user has to provide username and email
- -->
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>GraphQL Client</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Bootstrap 4.0.0 -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
     />
+    <style>
+      body {
+        background-color: #f4f4f4;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+    <title>Login</title>
   </head>
   <body>
-    <!--make the form in the center-->
-    <div class="container">
-      <h1>Login</h1>
-      <form id="loginForm">
-        <div class="form-group">
-          <label for="username">Username:</label>
-          <input
-            type="text"
-            name="username"
-            class="form-control"
-            id="username"
-            required
-          />
-        </div>
-        <div class="form-group">
-          <label for="email">Email:</label>
-          <input
-            type="text"
-            class="form-control"
-            id="email"
-            name="email"
-            required
-          />
-        </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
-      <p id="errorMessage" style="color: red"></p>
+    <div class="ui middle aligned center aligned grid">
+      <div class="column">
+        <h2 class="ui teal image header">
+          <div class="content">Login</div>
+        </h2>
+        <form id="loginForm" class="ui large form">
+          <div class="ui stacked segment">
+            <div class="field">
+              <label for="username">User Name</label>
+              <input
+                type="text"
+                name="userName"
+                placeholder="User Name"
+                id="username"
+                required
+              />
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                id="email"
+                required
+              />
+            </div>
+            <button class="ui fluid large teal submit button" type="submit">
+              Login
+            </button>
+          </div>
+          <div
+            class="ui error message"
+            id="errorMessage"
+            style="color: red"
+          ></div>
+        </form>
+      </div>
     </div>
-    <!-- Axios 0.18.0 -->
+
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script type="module" src="../js/login.js"></script>
   </body>
