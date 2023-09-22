@@ -18,9 +18,13 @@ departmentSelect.addEventListener("change", () => {
 });
 
 const getShiftForEmployee = async (id) => {
+  const token = localStorage.getItem("token");
+
   try {
-    const response = await axios.post("http://localhost:8000/graphql", {
-      query: `
+    const response = await axios.post(
+      "http://localhost:8000/graphql",
+      {
+        query: `
     query($id: String){
       employeeShifts(id: $id){
           date
@@ -29,13 +33,20 @@ const getShiftForEmployee = async (id) => {
       }
   }
         `,
-      variables: {
-        id: id,
+        variables: {
+          id: id,
+        },
       },
-    });
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          actionCount: localStorage.getItem("actionCount"),
+        },
+      }
+    );
 
     const { data, errors } = response.data;
-
+    //console.log("getShiftForEmployee");
     if (errors) {
       return errors[0].message;
     }
@@ -61,7 +72,7 @@ const getAllDepartments = async () => {
               }
             `,
     });
-
+    //console.log("getAllDepartments");
     const { departments } = response.data.data;
     return departments;
   } catch (error) {
@@ -135,9 +146,12 @@ const filterEmployees = async (selectedDepartment) => {
 };
 
 const getAllEmployees = async () => {
+  const token = localStorage.getItem("token");
   try {
-    const response = await axios.post("http://localhost:8000/graphql", {
-      query: `
+    const response = await axios.post(
+      "http://localhost:8000/graphql",
+      {
+        query: `
               {
                 employees {
                   _id
@@ -149,8 +163,15 @@ const getAllEmployees = async () => {
                 }
               }
             `,
-    });
-
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          actionCount: localStorage.getItem("actionCount"),
+        },
+      }
+    );
+    //console.log("getAllEmployees");
     const { employees } = response.data.data;
     return employees;
   } catch (error) {
@@ -162,6 +183,7 @@ const getAllEmployees = async () => {
 const initEmployeesTable = async () => {
   try {
     const employees = await getAllEmployees();
+
     filterEmployees("", employees);
   } catch (error) {
     console.error("GraphQL request error:", error);

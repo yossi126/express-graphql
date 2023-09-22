@@ -73,6 +73,7 @@ type RootQuery{
     shift(id: String):Shift
 
     login(userName: String,email: String): AuthData
+    logout: String
 }
 
 type RootMutation{
@@ -93,6 +94,8 @@ updateShift(id: String, shift: ShiftInput): String
 removeEmployeesFromShift(shiftId: String, employeeIds: [String]): String
 addEmployeesFromShift(shiftId: String, employeeIds: [String]): String
 updateShiftEmployees(shiftId: String, employeeIdsToAdd: [String], employeeIdsToRemove:[String]): String
+
+
 
 
 }

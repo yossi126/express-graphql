@@ -13,6 +13,3 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 checkAuthentication();
-
-const d = new Date();
-console.log(d.toISOString());

@@ -12,9 +12,13 @@ module.exports = {
       throw error;
     }
   },
-  employees: async () => {
+  employees: async (args, req) => {
+    //console.log("employees resolver> " + req.actions);
+    //console.log(localStorage.getItem("actionCount"));
+    //console.log("Request Headers employees: ", req.headers.actioncount);
     try {
       const employees = await Employee.find({}).populate("departmentID");
+
       return employees;
     } catch (error) {
       throw error;
@@ -61,6 +65,7 @@ module.exports = {
           endingHour: shift.endingHour,
         };
       });
+      //console.log("employeeShifts");
       return shifts;
     } catch (error) {
       throw error;

@@ -36,13 +36,15 @@ loginForm.addEventListener("submit", async (e) => {
       const token = login.token;
 
       localStorage.setItem("token", token);
-
+      //create a defult action count veraible in local storage
+      localStorage.setItem("actionCount", 0);
       document.getElementById("username").value = "";
       document.getElementById("email").value = "";
       redirectToMain();
     } else {
       // Invalid credentials or other error
-      errorMessage.textContent = "Login failed. Please check your credentials.";
+      console.log(response.data.errors[0].message);
+      errorMessage.textContent = response.data.errors[0].message;
     }
   } catch (error) {
     console.error("Login error:", error);

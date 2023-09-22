@@ -2,6 +2,7 @@ const User = require("../../models/user");
 const jwt = require("jsonwebtoken");
 const { getUsers } = require("../../api/jsonPlaceHolder");
 require("dotenv").config();
+const { writeToLogFile, checkRemainActions } = require("../../utils/log-utils");
 
 module.exports = {
   createUser: async () => {
@@ -20,19 +21,40 @@ module.exports = {
     return usersdb;
   },
   login: async ({ userName, email }) => {
+    //get all the users from the api
     const users = await getUsers();
+    // authenticate the user against the  mondo db
     const user = users.find(
       (user) => user.username === userName && user.email === email
     );
     if (!user) {
-      throw new Error("User not found");
+      throw new Error("Please check your credentials!");
+    }
+    //get the user frpm the db for his num of actions
+    const existingUser = await User.findOne({ _id: user.id });
+    if (!existingUser) {
+      throw new Error("User not found in db");
     }
 
+    //check if the user has actions left
+    try {
+      await checkRemainActions(user.id);
+    } catch (error) {
+      return error;
+    }
+
+    //create a token
     const token = jwt.sign(
-      { userId: user.id, userName: user.name },
+      {
+        userId: user.id,
+        userName: user.name,
+        numOfActions: existingUser.numOfActions,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
+    // console.log("here");
+    // writeToLogFile(user.id, existingUser.numOfActions, 0);
     return { userId: user.id, token: token, tokenExpiration: 1 };
   },
   user: async (args, req) => {
@@ -40,12 +62,33 @@ module.exports = {
       console.log("Unauthenticated");
       throw new Error("Unauthenticated");
     }
+    if (req.actionsLeft === false) {
+      throw new Error("no actions left");
+    }
 
     try {
       const user = await User.findById(req.userId);
+
+      const result = await checkRemainActions(user._id);
+      // console.log("Request Headers get user user:", result);
       return user;
     } catch (err) {
       throw err;
     }
+  },
+  logout: async (args, req) => {
+    const actionsCount = req.headers.actioncount;
+    const token = req.headers.token;
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findOne({ _id: decodedToken.userId });
+
+    writeToLogFile(user._id, user.numOfActions, actionsCount);
+
+    //console.log(user);
+    //console.log(req);
+    //const existingUser = await User.findOne({ _id: req.userId });
+    //console.log(existingUser);
+
+    return "logout";
   },
 };
