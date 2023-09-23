@@ -1,5 +1,6 @@
 const loginForm = document.getElementById("loginForm");
 const errorMessage = document.getElementById("errorMessage");
+errorMessage.style.display = "none";
 
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -44,7 +45,7 @@ loginForm.addEventListener("submit", async (e) => {
     } else {
       // Invalid credentials or other error
       console.log(response.data.errors[0].message);
-      errorMessage.textContent = response.data.errors[0].message;
+      setErrorMsg(response.data.errors[0].message);
     }
   } catch (error) {
     console.error("Login error:", error);
@@ -57,3 +58,13 @@ function redirectToMain() {
   // Redirect to the "main.html" page in the same folder
   window.location.href = "main.html";
 }
+
+const setErrorMsg = (error) => {
+  errorMessage.textContent = error;
+  errorMessage.style.display = "block";
+  const interval = setInterval(() => {
+    errorMessage.textContent = "";
+    errorMessage.style.display = "none";
+    clearInterval(interval);
+  }, 3000);
+};

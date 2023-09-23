@@ -1,4 +1,9 @@
-import { getUser, logout, checkAuthentication } from "./utils.js";
+import {
+  getUser,
+  logout,
+  checkAuthentication,
+  formatDateToCustomFormat,
+} from "./utils.js";
 const logoutBtn = document.getElementById("logout");
 const employeesLink = document.getElementById("employeesLink");
 const departmentSelect = document.getElementById("departmentSelect");
@@ -52,6 +57,8 @@ const getShiftForEmployee = async (id) => {
     }
 
     const { employeeShifts } = data;
+    // sort the shifts by date in ascending order
+    employeeShifts.sort((a, b) => new Date(a.date) - new Date(b.date));
     return employeeShifts;
   } catch (error) {
     console.log("Network error:", error);
@@ -66,7 +73,6 @@ const getAllDepartments = async () => {
               {
                 departments {
                   _id
-                  manager
                   name
                 }
               }
@@ -130,7 +136,11 @@ const filterEmployees = async (selectedDepartment) => {
             ? shifts
             : shifts
                 .map((shift) => {
-                  return `<div>${shift.date} ${shift.startingHour} - ${shift.endingHour}</div>`;
+                  return `<div><i class="calendar alternate outline icon"></i> ${formatDateToCustomFormat(
+                    shift.date
+                  )} <i class="clock outline icon"></i>${
+                    shift.startingHour
+                  } - ${shift.endingHour}</div>`;
                 })
                 .join("")
         }

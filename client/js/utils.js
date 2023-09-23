@@ -15,6 +15,7 @@ async function trackUserAction(numOfActions) {
 
 //get the current user from the server
 export const getUser = async () => {
+  const currentURL = window.location.href;
   const token = localStorage.getItem("token");
   try {
     const response = await axios.post(
@@ -95,3 +96,14 @@ export const checkAuthentication = () => {
     window.location.href = "login.html"; // Redirect unauthenticated users to the login page
   }
 };
+
+export function formatDateToCustomFormat(dateString) {
+  const inputDate = new Date(dateString);
+  if (!isNaN(inputDate)) {
+    const year = inputDate.getFullYear();
+    const month = String(inputDate.getMonth() + 1).padStart(2, "0");
+    const day = String(inputDate.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+  return ""; // Return an empty string if the input date is invalid
+}

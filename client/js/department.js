@@ -33,7 +33,9 @@ const initEmployeesTable = async () => {
         department.name
       }</a></td>
         <td>${
-          department.manager === null ? "No manager" : `${department.manager}`
+          department.manager === null
+            ? "No manager"
+            : `${department.manager.firstName}`
         }</td>
         <td>${filteredEmployees
           .map(
@@ -54,13 +56,15 @@ const getAllDepartments = async () => {
   try {
     const response = await axios.post("http://localhost:8000/graphql", {
       query: `
-              {
-                departments {
-                  _id
-                  manager
-                  name
-                }
-              }
+      query{
+        departments{
+            _id
+            manager{
+                firstName
+            }
+            name
+        }
+    }
             `,
     });
 

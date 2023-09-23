@@ -84,8 +84,8 @@ module.exports = {
         { _id: args.id },
         {
           date: args.shift.date,
-          startingHour: date.getHours(),
-          endingHour: date.getHours() + 8,
+          startingHour: args.shift.startingHour,
+          endingHour: args.shift.endingHour,
         },
         {
           new: true,

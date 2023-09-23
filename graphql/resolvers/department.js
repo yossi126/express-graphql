@@ -3,7 +3,7 @@ const Employee = require("../../models/employee");
 module.exports = {
   departments: async () => {
     try {
-      const departments = await Department.find({});
+      const departments = await Department.find({}).populate("manager");
       if (!departments) {
         throw new Error(`No department with id: ${args.id}`);
       }
@@ -14,7 +14,7 @@ module.exports = {
   },
   department: async (args) => {
     try {
-      const department = await Department.findById(args.id);
+      const department = await Department.findById(args.id).populate("manager");
       if (!department) {
         throw new Error(`No department with id: ${args.id}`);
       }

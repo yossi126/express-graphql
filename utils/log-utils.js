@@ -91,12 +91,15 @@ const checkRemainActions = async (userId) => {
 
 const checkRemainActionsInMiddeleware = async (userId, actionCount) => {
   const data = await jsonfile.readFile(actionsLogFilePath);
+  //console.log(userId, actionCount);
   let lastActionAllowd = null;
   const currentFormattedDate = createFormattedDate();
+  //console.log(currentFormattedDate);
   // filter only the logs with the current date
   const filteredData = data.filter((item) => {
     return item.id === userId && item.date === currentFormattedDate;
   });
+  //console.log(filteredData);
   if (data.length === 0) {
     return true;
   } else {
@@ -107,7 +110,15 @@ const checkRemainActionsInMiddeleware = async (userId, actionCount) => {
       }
     }
   }
+  // console.log(
+  //   "outside lastActionAllowd: " + lastActionAllowd,
+  //   "actionCount: " + actionCount
+  // );
   if (lastActionAllowd === parseInt(actionCount)) {
+    // console.log(
+    //   "lastActionAllowd: " + lastActionAllowd,
+    //   "actionCount: " + actionCount
+    // );
     data.push({
       id: userId,
       maxActions: filteredData[0].maxActions,

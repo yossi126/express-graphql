@@ -16,9 +16,6 @@ module.exports = async (req, res, next) => {
   let decodedToken;
   try {
     decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-    if (req.actions == null) {
-      //console.log("null");
-    }
     //console.log(actions);
   } catch (err) {
     req.isAuth = false;
@@ -30,19 +27,20 @@ module.exports = async (req, res, next) => {
     //console.log("4", req.path);
     return next();
   }
+  req.isAuth = true;
+  req.userId = decodedToken.userId;
+  req.actions = decodedToken.numOfActions;
+  req.actionCount = req.headers.actioncount;
+
   const checkRemainActions = await checkRemainActionsInMiddeleware(
     req.userId,
     req.headers.actioncount
   );
   if (checkRemainActions === false) {
     req.actionsLeft = false;
+    //console.log("req.actionsLeft: " + req.actionsLeft);
     return next();
   }
-
-  req.isAuth = true;
-  req.userId = decodedToken.userId;
-  req.actions = decodedToken.numOfActions;
-  req.actionCount = req.headers.actioncount;
 
   //console.log("5", req.path);
   next();

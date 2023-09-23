@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const editShiftForm = document.getElementById("editShiftForm");
   document.getElementById("removeESubmit").disabled = true;
   document.getElementById("addESubmit").disabled = true;
+  const wrapperDiv = document.getElementById("divWrapper");
 
   //log out button
   logoutBtn.addEventListener("click", logout);
@@ -33,7 +34,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const editShiftDate = document.getElementById("editShiftDate");
     const editShiftStart = document.getElementById("editShiftStart");
     const editShiftEnd = document.getElementById("editShiftEnd");
-    msgToRemove.innerHTML = "Shift employee. Select to remove:";
+    msgToRemove.innerHTML = "Current employees. Select to remove:";
     toggleFormVisibility();
     //get the shiftId from the element
     const shiftId = event.target.value;
@@ -66,7 +67,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       checkboxesDivForOtherEmployees.innerHTML = "";
       document.getElementById("removeESubmit").disabled = false;
       document.getElementById("addESubmit").disabled = false;
-      msgToRemove.innerHTML = "Shift employee. Select to remove:";
+      msgToRemove.innerHTML = "Current employees. Select to remove:";
       //if there is no employees in the shift, display all the employees in the checkboxes
       if (shift.userId.length === 0) {
         alertForNoEmployees.innerHTML =
@@ -107,7 +108,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         input.autocomplete = "off";
 
         const label = document.createElement("label");
-        label.classList.add("ui", "basic", "primary", "button"); // Add Semantic UI classes
+        label.classList.add("ui", "basic", "label", "primary", "big"); // Add Semantic UI classes
         label.htmlFor = `checkbox-${index}`; // Matching unique ID
         label.innerText = user.firstName;
 
@@ -140,7 +141,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         input.autocomplete = "off";
 
         const label = document.createElement("label");
-        label.classList.add("ui", "basic", "outline", "primary", "button"); // Add Semantic UI classes
+        label.classList.add("ui", "basic", "label", "primary", "big"); // Add Semantic UI classes
         label.htmlFor = `checkbox-${index}-${index}`; // Matching unique ID
         label.innerText = user.firstName;
 
@@ -184,7 +185,7 @@ document.addEventListener("DOMContentLoaded", async function () {
           }
         });
         await removeEmployeesFromShift(shiftId, existEmployeesId);
-        alert("removeEmployeesFromShift");
+        alert(existEmployeesId.length + " employee/s removed from shift");
         window.location.replace("./shifts.html");
       });
 
@@ -206,7 +207,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
 
         await addEmployeesFromShift(shiftId, availableEmployeesId);
-        alert("addEmployeesFromShift");
+        alert(availableEmployeesId.length + " employee/s added to shift");
         window.location.replace("./shifts.html");
       });
   });
@@ -268,9 +269,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     const formElements = document.querySelectorAll(
       "#editShiftForm input, #editShiftForm select, #editSubmit"
     );
-    const formElements2 = document.querySelectorAll(
-      "#editShiftForm input, #editShiftForm select, #editSubmit"
-    );
 
     if (selectElement.value !== "option-shift") {
       // Enable the form elements
@@ -279,6 +277,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         // console.log(selectElement.value);
         element.disabled = false;
       });
+      wrapperDiv.style.display = "block";
     } else {
       // Disable the form elements
       formElements.forEach((element) => {
@@ -286,9 +285,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         // console.log(selectElement.value);
         element.disabled = true;
       });
-      console.log(checkboxesDiv);
+      wrapperDiv.style.display = "none";
       checkboxesDiv.innerHTML = "";
       checkboxesDivForOtherEmployees.innerHTML = "";
+
       document.getElementById("removeESubmit").disabled = true;
       document.getElementById("addESubmit").disabled = true;
     }
@@ -296,6 +296,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   const popolateShiftstoOptions = async () => {
     try {
       const allShifts = await getAllShifts();
+      // Sort the shifts by date in descending order
+      allShifts.sort((a, b) => new Date(a.date) - new Date(b.date));
       const selectElement = document.querySelector(".form-select");
       allShifts.forEach((shift) => {
         const option = document.createElement("option");
@@ -303,8 +305,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         option.text = formatDateToCustomFormat(shift.date);
         selectElement.appendChild(option);
       });
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
   };
+
   const getAllShifts = async () => {
     const responseShifts = await axios.post("http://localhost:8000/graphql", {
       query: `

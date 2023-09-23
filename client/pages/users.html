@@ -11,28 +11,28 @@
   </head>
 
   <body>
-    <div class="ui container">
-      <div class="ui large secondary pointing menu">
-        <a class="item col-lg-3" id="fullName" href="#"> Centered nav </a>
-        <div class="ui col-lg-6 menu">
-          <a class="item" id="homeLink" href="./main.html"> Home </a>
-          <a class="item" id="employeesLink" href="./employees.html">
-            Employees
-          </a>
-          <a class="item" id="departmentLink" href="./department.html">
-            Department
-          </a>
-          <a class="item" id="shiftsLink" href="./shifts.html"> Shifts </a>
-          <a class="item" id="usersLink" href="./users.html"> Users </a>
-        </div>
-        <div class="ui col-lg-3 right menu">
-          <button class="ui red button" id="logout">Logout</button>
-        </div>
+    <div class="ui secondary pointing menu">
+      <div class="item col-lg-3">
+        <i class="user icon"></i>
+        <a id="fullName" style="color: black">Centered nav</a>
+      </div>
+      <a class="item" id="homeLink" href="./main.html"> Home </a>
+      <a class="item" id="employeesLink" href="./employees.html"> Employees </a>
+      <a class="item" id="departmentLink" href="./department.html">
+        Department
+      </a>
+      <a class="item" id="shiftsLink" href="./shifts.html"> Shifts </a>
+      <a class="item" id="usersLink" href="./users.html"> Users </a>
+      <div class="ui col-lg-3 right menu">
+        <button class="medium ui red button" id="logout">
+          <i class="sign-out icon"></i>
+          sign-out
+        </button>
       </div>
     </div>
 
-    <div class="ui container">
-      <table class="ui celled striped table">
+    <div class="ui container" style="margin-top: 50px">
+      <table class="ui celled blue table">
         <thead>
           <tr>
             <th>Id</th>

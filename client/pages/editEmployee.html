@@ -11,27 +11,28 @@
   </head>
 
   <body>
-    <div class="ui container">
-      <div class="ui large secondary pointing menu">
-        <a class="item col-lg-3" id="fullName" href="#"> Centered nav </a>
-        <div class="ui col-lg-6 menu">
-          <a class="item" id="homeLink" href="./main.html"> Home </a>
-          <a class="item" id="employeesLink" href="./employees.html">
-            Employees
-          </a>
-          <a class="item" id="departmentLink" href="./department.html">
-            Department
-          </a>
-          <a class="item" id="shiftsLink" href="./shifts.html"> Shifts </a>
-          <a class="item" id="usersLink" href="./users.html"> Users </a>
-        </div>
-        <div class="ui col-lg-3 right menu">
-          <button class="ui red button" id="logout">Logout</button>
-        </div>
+    <div class="ui secondary pointing menu">
+      <div class="item col-lg-3">
+        <i class="user icon"></i>
+        <a id="fullName" style="color: black">Centered nav</a>
+      </div>
+      <a class="item" id="homeLink" href="./main.html"> Home </a>
+      <a class="item" id="employeesLink" href="./employees.html"> Employees </a>
+      <a class="item" id="departmentLink" href="./department.html">
+        Department
+      </a>
+      <a class="item" id="shiftsLink" href="./shifts.html"> Shifts </a>
+      <a class="item" id="usersLink" href="./users.html"> Users </a>
+      <div class="ui col-lg-3 right menu">
+        <button class="medium ui red button" id="logout">
+          <i class="sign-out icon"></i>
+          sign-out
+        </button>
       </div>
     </div>
+
     <div class="ui middle aligned center aligned grid">
-      <div class="column" style="max-width: 450px">
+      <div class="column" style="max-width: 450px; margin-top: 50px">
         <h1 class="ui header">Edit Employee</h1>
         <form class="ui form" id="editEmployeeForm">
           <div class="field">
@@ -55,9 +56,9 @@
           </div>
         </form>
 
-        <form class="ui form" id="addShiftForm">
+        <form class="ui form" id="addShiftForm" style="margin-top: 20px">
           <div class="field">
-            <label for="shift">Shift:</label>
+            <label for="shift">Select shift to add:</label>
             <select class="ui dropdown" id="selectShift"></select>
           </div>
 
@@ -66,18 +67,19 @@
           </button>
         </form>
 
-        <p id="errorMessage" style="color: red"></p>
-
-        <table class="ui celled table" id="shiftsTable">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Starting Hour</th>
-              <th>Ending Hour</th>
-            </tr>
-          </thead>
-          <tbody id="shiftsTableBody"></tbody>
-        </table>
+        <p id="errorMessage" style="color: red; margin-top: 20px"></p>
+        <div id="tableWrapper">
+          <table class="ui celled table" id="shiftsTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Starting Hour</th>
+                <th>Ending Hour</th>
+              </tr>
+            </thead>
+            <tbody id="shiftsTableBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -130,7 +132,11 @@
 
       deleteBtn.addEventListener("click", (e) => {
         e.preventDefault();
-        if (confirm("Are you sure you want to delete this employee?") == true) {
+        if (
+          confirm(
+            "Are you sure you want to delete this employee and all his data?"
+          ) == true
+        ) {
           deleteEmployee();
           alert("employee deleted successfully");
           window.location.replace("./employees.html");
@@ -175,9 +181,8 @@
       const popolateShiftsTable = async () => {
         try {
           const employeeShifts = await getEmployeeShifts(employeeId);
-
           if (employeeShifts === null) {
-            errorMessage.innerHTML = "no shifts for this employee";
+            errorMessage.innerHTML = "No shifts for this employee yet";
             // shiftsTable.hidden = true;
             // addShiftForm.hidden = true;
             // return;
@@ -187,7 +192,7 @@
               const dateTd = document.createElement("td");
               const startingHourTd = document.createElement("td");
               const endingHourTd = document.createElement("td");
-              dateTd.innerHTML = shift.date;
+              dateTd.innerHTML = formatDateToCustomFormat(shift.date);
               startingHourTd.innerHTML = shift.startingHour;
               endingHourTd.innerHTML = shift.endingHour;
               tr.appendChild(dateTd);
@@ -198,13 +203,13 @@
           }
 
           const allShifts = await getAllShifts();
-
+          allShifts.sort((a, b) => new Date(a.date) - new Date(b.date));
           // if there is no shit for the user, get them all
           if (employeeShifts === null) {
             allShifts.forEach((shift) => {
               const option = document.createElement("option");
               option.value = shift._id;
-              option.innerHTML = shift.date;
+              option.innerHTML = formatDateToCustomFormat(shift.date);
               selectShift.appendChild(option);
             });
           } else {
@@ -219,17 +224,26 @@
               if (!isExist) {
                 const option = document.createElement("option");
                 option.value = shift._id;
-                option.innerHTML = shift.date;
+                option.innerHTML = formatDateToCustomFormat(shift.date);
                 selectShift.appendChild(option);
               }
             });
           }
-          if (allShifts.length === employeeShifts.length) {
+          if (employeeShifts === null) {
+            document.getElementById("tableWrapper").style.visibility = "hidden";
+          } else if (allShifts.length === employeeShifts.length) {
             document.getElementById("submit-shift").disabled = true;
+            document.getElementById("tableWrapper").style.visibility = "block";
             const option = document.createElement("option");
             option.innerHTML = "no shifts available";
             selectShift.appendChild(option);
           }
+          // if (allShifts.length === employeeShifts.length) {
+          //   document.getElementById("submit-shift").disabled = true;
+          //   const option = document.createElement("option");
+          //   option.innerHTML = "no shifts available";
+          //   selectShift.appendChild(option);
+          // }
         } catch (error) {
           console.log(error);
         }
@@ -399,6 +413,17 @@
           console.log(error);
         }
       };
+
+      function formatDateToCustomFormat(dateString) {
+        const inputDate = new Date(dateString);
+        if (!isNaN(inputDate)) {
+          const year = inputDate.getFullYear();
+          const month = String(inputDate.getMonth() + 1).padStart(2, "0");
+          const day = String(inputDate.getDate()).padStart(2, "0");
+          return `${year}-${month}-${day}`;
+        }
+        return ""; // Return an empty string if the input date is invalid
+      }
     </script>
   </body>
 </html>

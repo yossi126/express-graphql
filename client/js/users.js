@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 const getAllUsers = async () => {
   const token = localStorage.getItem("token");
-
   try {
     const response = await axios.post(
       "http://localhost:8000/graphql",
@@ -43,7 +42,9 @@ const getAllUsers = async () => {
     }
 
     const { users } = data;
-    console.log(users);
+    // sort by the id descending
+    users.sort((a, b) => a._id - b._id);
+
     return users;
   } catch (error) {
     console.log("Network error:", error);

@@ -10,7 +10,7 @@ type Employee{
 type Department{
     _id: ID
     name: String
-    manager: String
+    manager: Employee
 }
 
 type User{
