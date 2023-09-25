@@ -74,6 +74,9 @@ type RootQuery{
 
     login(userName: String,email: String): AuthData
     logout: String
+
+    currentActions(userId: Int): String
+    logFile: String
 }
 
 type RootMutation{

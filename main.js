@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const connectDB = require("./db/connect");
+require("dotenv").config();
 
 //graphql
 const { graphqlHTTP } = require("express-graphql");
@@ -34,7 +35,7 @@ app.use(
 const port = 8000;
 const start = async () => {
   try {
-    await connectDB();
+    await connectDB(process.env.MONGO_URI);
     await createUsersForDB();
     //TODO: fix this. when there isnt log filw server is booting twice - maybe becuse of the nodemon
     await createLogFile();

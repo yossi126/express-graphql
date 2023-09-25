@@ -1,6 +1,7 @@
 const jsonfile = require("jsonfile");
 const fs = require("fs");
 const path = require("path");
+const User = require("../models/user");
 
 //directions for the log file
 const directoryName = "logs";
@@ -140,9 +141,40 @@ const createFormattedDate = () => {
   return currentFormattedDate;
 };
 
+const getCurrentActionsForUser = async (userId) => {
+  const user = await User.findById(userId);
+  //read the file
+  const data = await jsonfile.readFile(actionsLogFilePath);
+  // if there is nothing in the file return the num of actions of the user
+  if (data.length === 0) {
+    return user.numOfActions;
+  } else {
+    const currentFormattedDate = createFormattedDate();
+    // filter only the logs with the current date
+    const filteredData = data.filter((item) => {
+      return item.id === userId && item.date === currentFormattedDate;
+    });
+    // if there is no log of the user return the num of actions of the user
+    if (filteredData.length === 0) {
+      return user.numOfActions;
+    } else {
+      // if the filterData contains the user log return the last actionAllowd that means how much actions left for the user
+      let lastActionAllowd = null;
+      for (const item of filteredData) {
+        if (item.actionAllowd !== undefined) {
+          lastActionAllowd = item.actionAllowd;
+        }
+      }
+      return lastActionAllowd;
+    }
+  }
+};
+
 module.exports = {
   createLogFile,
   writeToLogFile,
   checkRemainActions,
   checkRemainActionsInMiddeleware,
+  getCurrentActionsForUser,
+  actionsLogFilePath,
 };

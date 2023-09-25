@@ -2,7 +2,14 @@ const User = require("../../models/user");
 const jwt = require("jsonwebtoken");
 const { getUsers } = require("../../api/jsonPlaceHolder");
 require("dotenv").config();
-const { writeToLogFile, checkRemainActions } = require("../../utils/log-utils");
+const {
+  writeToLogFile,
+  checkRemainActions,
+  getCurrentActionsForUser,
+} = require("../../utils/log-utils");
+
+const fs = require("fs");
+const { actionsLogFilePath } = require("../../utils/log-utils");
 
 module.exports = {
   createUser: async () => {
@@ -59,7 +66,7 @@ module.exports = {
       throw new Error("Unauthenticated");
     }
     if (req.actionsLeft === false) {
-      throw new Error("no actions left");
+      throw new Error("No actions left for today, come back tomorrow.");
     }
 
     try {
@@ -71,12 +78,13 @@ module.exports = {
   },
   users: async (args, req) => {
     if (!req.isAuth) {
-      console.log("Unauthenticated");
+      //console.log("Unauthenticated");
       throw new Error("Unauthenticated");
     }
-    if (req.actionsLeft === false) {
-      throw new Error("no actions left");
-    }
+    // if (req.actionsLeft === false) {
+    //   //console.log("no actions left");
+    //   throw new Error("no actions left");
+    // }
     try {
       const users = await User.find({});
       return users;
@@ -93,5 +101,19 @@ module.exports = {
     writeToLogFile(user._id, user.numOfActions, actionsCount);
 
     return "logout";
+  },
+  currentActions: async (args, req) => {
+    //console.log(args.userId);
+    const result = await getCurrentActionsForUser(args.userId);
+    return result;
+  },
+  logFile: () => {
+    try {
+      const data = fs.readFileSync(actionsLogFilePath, "utf8");
+      return data;
+    } catch (error) {
+      console.error("Error reading log file:", error);
+      return null;
+    }
   },
 };

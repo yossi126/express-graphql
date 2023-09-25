@@ -51,10 +51,20 @@
             </button>
           </div>
         </form>
-        <p class="ui error message" id="errorMessage" style="color: red"></p>
+        <div class="ui buttons" style="margin-top: 20px">
+          <!-- <button id="downloadButton" class="ui secondary button">
+            Download Log File
+          </button> -->
+          <button id="downloadButton" class="ui basic icon button">
+            <i class="download icon"></i>
+            Log File
+          </button>
+        </div>
+        <div class="ui">
+          <p class="ui error message" id="errorMessage" style="color: red"></p>
+        </div>
       </div>
     </div>
-
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script type="module" src="../js/login.js"></script>
   </body>

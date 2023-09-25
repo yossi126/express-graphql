@@ -7,6 +7,7 @@ loginForm.addEventListener("submit", async (e) => {
 
   const username = document.getElementById("username").value;
   const email = document.getElementById("email").value;
+  const downloadButton = document.getElementById("downloadButton");
 
   try {
     // Send a GraphQL request to your server
@@ -53,6 +54,52 @@ loginForm.addEventListener("submit", async (e) => {
       "An error occurred during login. Please try again.";
   }
 });
+
+downloadButton.addEventListener("click", async function () {
+  await downloadLogFile();
+});
+
+const downloadLogFile = async () => {
+  const query = `
+    query {
+      logFile
+    }
+  `;
+
+  try {
+    const response = await fetch("/graphql", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query }),
+    });
+
+    const data = await response.json();
+    const logFile = data.data.logFile;
+
+    // Create a Blob object from the log file data
+    const blob = new Blob([logFile], { type: "application/json" });
+
+    // Create a URL for the Blob object
+    const url = URL.createObjectURL(blob);
+
+    // Create an invisible anchor element
+    const anchor = document.createElement("a");
+    anchor.style.display = "none";
+    anchor.href = url;
+    anchor.download = "actions-log.json"; // Specify the desired file name and extension
+
+    // Append the anchor to the body
+    document.body.appendChild(anchor);
+
+    // Trigger a click event on the anchor
+    anchor.click();
+
+    // Remove the anchor from the body (cleanup)
+    document.body.removeChild(anchor);
+  } catch (error) {
+    console.error("Download error:", error);
+  }
+};
 
 function redirectToMain() {
   // Redirect to the "main.html" page in the same folder

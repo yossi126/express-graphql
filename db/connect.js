@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
-const connectDB = () => {
+const connectDB = (url) => {
   return mongoose
-    .connect("mongodb://localhost:27017/relationshipDB")
+    .connect(url)
     .then(() => console.log("connected to relationshipDB"))
     .catch((error) => console.log(error));
 };

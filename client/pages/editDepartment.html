@@ -52,18 +52,18 @@
             <select class="ui dropdown" id="selectManager"></select>
           </div>
           <p>Select employees to remove:</p>
-          <div class="field" id="divToInsert">
+          <div class="field" id="divToInsert" style="margin-top: 20px">
             <button type="submit" class="ui green button" id="submit">
               Update
             </button>
-            <button type="button" class="ui red button" id="delete">
-              Delete department
-            </button>
           </div>
+          <button type="button" class="ui red button" id="delete">
+            Delete department
+          </button>
         </form>
 
-        <div>
-          <p>Add employee to the shift</p>
+        <div style="margin-top: 20px">
+          <p>Add employee to the department</p>
           <form class="ui form" id="addEmployeeToDepartmentForm">
             <div class="field">
               <label for="departmentName">Employee:</label>
@@ -119,7 +119,7 @@
             alert("Department deleted");
             window.location.replace("./department.html");
           } else {
-            console.log("You pressed Cancel!");
+            //console.log("You pressed Cancel!");
           }
         });
         addBtn.addEventListener("click", async (e) => {
@@ -139,6 +139,7 @@
             name: document.getElementById("departmentName").value,
             manager: selectManager.value,
           };
+          console.log(department);
           const response = await updateDepartmentbyId({
             id: departmentId,
             department,

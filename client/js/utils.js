@@ -50,7 +50,9 @@ export const getUser = async () => {
     const actionsLeft = await trackUserAction(data.user.numOfActions);
     const { user } = response.data.data;
     const fullName = document.getElementById("fullName");
-    fullName.textContent = `Welcome ${user.fullName}, ${actionsLeft}`;
+    fullName.textContent = `Welcome ${user.fullName}`;
+    //fullName.id = `${user.fullName} `;
+    return user;
   } catch (error) {
     console.error("GraphQL request error:", error);
   }

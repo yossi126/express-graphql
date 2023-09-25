@@ -122,30 +122,30 @@ const filterEmployees = async (selectedDepartment) => {
       const shifts = await getShiftForEmployee(employee._id);
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td><a href="editEmployee.html?id=${employee._id}">${
+          <td><a href="editEmployee.html?id=${employee._id}">${
         employee.firstName
       }</a></td>
-        <td>${
-          employee.departmentID
-            ? `<a href="editDepartment.html?id=${employee.departmentID._id}">${employee.departmentID.name}</a>`
-            : "No Department"
-        }</td>
-        <td>
-        ${
-          typeof shifts === "string"
-            ? shifts
-            : shifts
-                .map((shift) => {
-                  return `<div><i class="calendar alternate outline icon"></i> ${formatDateToCustomFormat(
-                    shift.date
-                  )} <i class="clock outline icon"></i>${
-                    shift.startingHour
-                  } - ${shift.endingHour}</div>`;
-                })
-                .join("")
-        }
-        </td>
-      `;
+          <td>${
+            employee.departmentID
+              ? `<a href="editDepartment.html?id=${employee.departmentID._id}">${employee.departmentID.name}</a>`
+              : "No Department"
+          }</td>
+          <td>
+          ${
+            typeof shifts === "string"
+              ? shifts
+              : shifts
+                  .map((shift) => {
+                    return `<div><i class="calendar alternate outline icon"></i> ${formatDateToCustomFormat(
+                      shift.date
+                    )} <i class="clock outline icon"></i>${
+                      shift.startingHour
+                    } - ${shift.endingHour}</div>`;
+                  })
+                  .join("")
+          }
+          </td>
+        `;
 
       // You can fetch and add shifts data in the third column here
       employeesTable.appendChild(row);

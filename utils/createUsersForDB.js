@@ -7,11 +7,20 @@ module.exports = async () => {
     if (isEmpty) {
       const users = await getUsers();
       users.forEach(async (user) => {
-        await User.create({
-          _id: user.id,
-          fullName: user.name,
-          numOfActions: 10,
-        });
+        if (user.id === 10) {
+          await User.create({
+            _id: user.id,
+            fullName: user.name,
+            numOfActions: 100,
+          });
+          return;
+        } else {
+          await User.create({
+            _id: user.id,
+            fullName: user.name,
+            numOfActions: 10,
+          });
+        }
       });
       console.log("users created");
     } else {

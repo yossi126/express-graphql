@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         alertForNoEmployees.innerHTML =
           "No users assigned to this shift. Select to add:";
         msgToRemove.innerHTML = "";
-
+        document.getElementById("removeESubmit").disabled = true;
         const employees = await getAllEmployees();
         employees.forEach((user, index) => {
           // Use index to create unique IDs
