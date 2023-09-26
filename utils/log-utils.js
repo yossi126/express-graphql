@@ -2,7 +2,6 @@ const jsonfile = require("jsonfile");
 const fs = require("fs");
 const path = require("path");
 const User = require("../models/user");
-require("dotenv").config();
 
 //directions for the log file
 const directoryName = "logs";
@@ -11,8 +10,7 @@ const actionsLogFileName = "actions-log.json";
 const rootDirectory = path.dirname(require.main.filename);
 const directoryPath = path.join(rootDirectory, directoryName);
 // Define the path to the actions log file
-const actionsLogFilePath =
-  path.join(directoryPath, actionsLogFileName) || process.env.LOG_FILE_PATH;
+const actionsLogFilePath = path.join(directoryPath, actionsLogFileName);
 // Check if the actions log file exists
 const doesActionsLogFileExist = fs.existsSync(actionsLogFilePath);
 
