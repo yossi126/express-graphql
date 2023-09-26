@@ -9,10 +9,13 @@ const directoryName = "logs";
 const actionsLogFileName = "actions-log.json";
 // Define the path to the actions log directory
 const rootDirectory = path.dirname(require.main.filename);
+console.log("rootDirectory: " + rootDirectory);
 const directoryPath = path.join(rootDirectory, directoryName);
+console.log("directoryPath: " + directoryPath);
 // Define the path to the actions log file
 const actionsLogFilePath =
   path.join(directoryPath, actionsLogFileName) || process.env.LOG_FILE_PATH;
+console.log("actionsLogFilePath: " + actionsLogFilePath);
 // Check if the actions log file exists
 const doesActionsLogFileExist = fs.existsSync(actionsLogFilePath);
 
