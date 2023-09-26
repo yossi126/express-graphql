@@ -32,7 +32,7 @@ app.use(
   })
 );
 
-const port = 8000;
+const port = process.env.PORT || 8000;
 const start = async () => {
   try {
     await connectDB(process.env.MONGO_URI);
